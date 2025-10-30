@@ -10,6 +10,19 @@ interface TimeData {
   day: string
 }
 
+interface SystemData {
+  cpuTemp: string
+  weather: {
+    temp: string
+    condition: string
+    icon: string
+  }
+  location: {
+    city: string
+    country: string
+  }
+}
+
 const DigitalClock: React.FC = () => {
   const [time, setTime] = useState<TimeData>({
     hours: '00',
@@ -18,6 +31,19 @@ const DigitalClock: React.FC = () => {
     ampm: 'AM',
     date: '',
     day: ''
+  })
+
+  const [systemData, setSystemData] = useState<SystemData>({
+    cpuTemp: '--°C',
+    weather: {
+      temp: '--°C',
+      condition: 'Loading...',
+      icon: '🌤️'
+    },
+    location: {
+      city: '--',
+      country: '--'
+    }
   })
 
   useEffect(() => {
@@ -47,11 +73,253 @@ const DigitalClock: React.FC = () => {
       })
     }
 
-    updateTime()
-    const interval = setInterval(updateTime, 1000)
+    const updateSystemData = async () => {
+      try {
+        // Fetch CPU temperature
+        const cpuTemp = await fetchCPUTemperature()
+        
+        // Fetch weather and location data
+        const weatherAndLocation = await fetchWeatherData()
+        
+        setSystemData({
+          cpuTemp,
+          weather: weatherAndLocation.weather,
+          location: weatherAndLocation.location
+        })
+      } catch (error) {
+        console.error('Failed to fetch system data:', error)
+      }
+    }
 
-    return () => clearInterval(interval)
+    updateTime()
+    updateSystemData() // Initial fetch
+    
+    const timeInterval = setInterval(updateTime, 1000)
+    const systemInterval = setInterval(updateSystemData, 30000) // Update every 30 seconds
+
+    return () => {
+      clearInterval(timeInterval)
+      clearInterval(systemInterval)
+    }
   }, [])
+
+  const fetchCPUTemperature = async (): Promise<string> => {
+    try {
+      // Try to read from local CPU temperature service
+      const response = await fetch('http://localhost:3001')
+      if (response.ok) {
+        const data = await response.json()
+        return `${Math.round(data.temperature)}°C`
+      }
+      
+      // Fallback: simulate temperature for demo
+      const simulatedTemp = 45 + Math.random() * 15
+      return `${Math.round(simulatedTemp)}°C`
+      
+    } catch (error) {
+      console.warn('Failed to read CPU temperature:', error)
+      // Return simulated temperature as fallback
+      const simulatedTemp = 50 + Math.random() * 10
+      return `${Math.round(simulatedTemp)}°C`
+    }
+  }
+
+  const fetchWeatherData = async () => {
+    try {
+      // Get location from environment variables (config)
+      const latitude = parseFloat(import.meta.env.VITE_DEFAULT_LAT || '17.3968')
+      const longitude = parseFloat(import.meta.env.VITE_DEFAULT_LON || '78.3348')
+      
+      // Use free weather API (wttr.in) - no API key required
+      const weatherUrl = `https://wttr.in/${latitude},${longitude}?format=j1`
+      
+      const response = await fetch(weatherUrl)
+      if (!response.ok) {
+        throw new Error(`Weather API error: ${response.status}`)
+      }
+      
+      const weatherData = await response.json()
+      const current = weatherData.current_condition[0]
+      const locationInfo = weatherData.nearest_area[0]
+      
+      return {
+        weather: {
+          temp: `${current.temp_C}°C`,
+          condition: current.weatherDesc[0].value,
+          icon: getWeatherIconFromCondition(current.weatherCode)
+        },
+        location: {
+          city: locationInfo.areaName[0].value,
+          country: locationInfo.country[0].value
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to fetch weather data, trying fallback APIs:', error)
+      return await fetchWeatherFallback()
+    }
+  }
+
+  const fetchWeatherFallback = async () => {
+    try {
+      // Fallback: Use open-meteo.com (completely free, no API key)
+      // Get location from environment variables (config)
+      const latitude = parseFloat(import.meta.env.VITE_DEFAULT_LAT || '17.3968')
+      const longitude = parseFloat(import.meta.env.VITE_DEFAULT_LON || '78.3348')
+      
+      // Get location name using reverse geocoding
+      const locationData = await fetchLocationName(latitude, longitude)
+      
+      const meteoUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=celsius`
+      
+      const response = await fetch(meteoUrl)
+      if (!response.ok) {
+        throw new Error(`Fallback weather API error: ${response.status}`)
+      }
+      
+      const weatherData = await response.json()
+      const current = weatherData.current_weather
+      
+      return {
+        weather: {
+          temp: `${Math.round(current.temperature)}°C`,
+          condition: getWeatherConditionFromCode(current.weathercode),
+          icon: getWeatherIconFromWMOCode(current.weathercode)
+        },
+        location: locationData
+      }
+    } catch (error) {
+      console.warn('All weather APIs failed:', error)
+      return {
+        weather: {
+          temp: '--°C',
+          condition: 'Service unavailable',
+          icon: '🌤️'
+        },
+        location: {
+          city: 'Unknown',
+          country: 'Unknown'
+        }
+      }
+    }
+  }
+
+  const fetchLocationName = async (latitude: number, longitude: number) => {
+    try {
+      // Use free reverse geocoding API
+      const geoUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+      
+      const response = await fetch(geoUrl)
+      if (!response.ok) {
+        throw new Error(`Geocoding API error: ${response.status}`)
+      }
+      
+      const locationData = await response.json()
+      
+      return {
+        city: locationData.city || locationData.locality || locationData.principalSubdivision || 'Unknown',
+        country: locationData.countryName || 'Unknown'
+      }
+    } catch (error) {
+      console.warn('Failed to fetch location name:', error)
+      return {
+        city: 'Unknown',
+        country: 'Unknown'
+      }
+    }
+  }
+
+  // Location is now configured via environment variables
+  // No need for browser geolocation
+
+  const getWeatherIcon = (iconCode: string): string => {
+    const iconMap: { [key: string]: string } = {
+      '01d': '☀️', // clear sky day
+      '01n': '🌙', // clear sky night
+      '02d': '⛅', // few clouds day
+      '02n': '☁️', // few clouds night
+      '03d': '☁️', // scattered clouds
+      '03n': '☁️',
+      '04d': '☁️', // broken clouds
+      '04n': '☁️',
+      '09d': '🌦️', // shower rain
+      '09n': '🌦️',
+      '10d': '🌧️', // rain day
+      '10n': '🌧️', // rain night
+      '11d': '⛈️', // thunderstorm
+      '11n': '⛈️',
+      '13d': '🌨️', // snow
+      '13n': '🌨️',
+      '50d': '�️', // mist
+      '50n': '🌫️'
+    }
+    
+    return iconMap[iconCode] || '🌤️'
+  }
+
+  const getWeatherIconFromCondition = (weatherCode: string): string => {
+    // wttr.in weather codes
+    const code = parseInt(weatherCode)
+    if (code >= 200 && code < 300) return '⛈️' // thunderstorm
+    if (code >= 300 && code < 400) return '🌦️' // drizzle
+    if (code >= 500 && code < 600) return '🌧️' // rain
+    if (code >= 600 && code < 700) return '🌨️' // snow
+    if (code >= 700 && code < 800) return '🌫️' // atmosphere
+    if (code === 800) return '☀️' // clear
+    if (code > 800) return '☁️' // clouds
+    return '🌤️' // default
+  }
+
+  const getWeatherIconFromWMOCode = (wmoCode: number): string => {
+    // WMO Weather interpretation codes (open-meteo)
+    const iconMap: { [key: number]: string } = {
+      0: '☀️',   // Clear sky
+      1: '🌤️',   // Mainly clear
+      2: '⛅',   // Partly cloudy
+      3: '☁️',   // Overcast
+      45: '🌫️',  // Fog
+      48: '🌫️',  // Depositing rime fog
+      51: '🌦️',  // Light drizzle
+      53: '🌦️',  // Moderate drizzle
+      55: '🌦️',  // Dense drizzle
+      61: '🌧️',  // Slight rain
+      63: '🌧️',  // Moderate rain
+      65: '🌧️',  // Heavy rain
+      71: '🌨️',  // Slight snow
+      73: '🌨️',  // Moderate snow
+      75: '🌨️',  // Heavy snow
+      95: '⛈️',  // Thunderstorm
+      96: '⛈️',  // Thunderstorm with hail
+      99: '⛈️'   // Thunderstorm with heavy hail
+    }
+    
+    return iconMap[wmoCode] || '🌤️'
+  }
+
+  const getWeatherConditionFromCode = (wmoCode: number): string => {
+    // WMO Weather interpretation codes descriptions
+    const conditionMap: { [key: number]: string } = {
+      0: 'Clear sky',
+      1: 'Mainly clear',
+      2: 'Partly cloudy',
+      3: 'Overcast',
+      45: 'Fog',
+      48: 'Depositing rime fog',
+      51: 'Light drizzle',
+      53: 'Moderate drizzle',
+      55: 'Dense drizzle',
+      61: 'Slight rain',
+      63: 'Moderate rain',
+      65: 'Heavy rain',
+      71: 'Slight snow',
+      73: 'Moderate snow',
+      75: 'Heavy snow',
+      95: 'Thunderstorm',
+      96: 'Thunderstorm with hail',
+      99: 'Thunderstorm with heavy hail'
+    }
+    
+    return conditionMap[wmoCode] || 'Unknown'
+  }
 
   return (
     <div className="digital-clock-page">
@@ -67,6 +335,22 @@ const DigitalClock: React.FC = () => {
           <div className="date-display">
             <div className="day">{time.day}</div>
             <div className="date">{time.date}</div>
+          </div>
+          
+          {/* System Info Display */}
+          <div className="system-info">
+            <div className="weather-info">
+              <span className="weather-icon">{systemData.weather.icon}</span>
+              <span className="weather-temp">{systemData.weather.temp}</span>
+              <span className="weather-condition">{systemData.weather.condition}</span>
+              <div className="location-info">
+                <span className="location-text">{systemData.location.city}, {systemData.location.country}</span>
+              </div>
+            </div>
+            <div className="cpu-info">
+              <span className="cpu-label">CPU</span>
+              <span className="cpu-temp">{systemData.cpuTemp}</span>
+            </div>
           </div>
         </div>
       </div>

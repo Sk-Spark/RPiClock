@@ -166,6 +166,74 @@
   background-clip: text;
 }
 
+/* System Info Display */
+.system-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+  padding: 1rem 2rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.weather-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.weather-icon {
+  font-size: 1.5rem;
+}
+
+.weather-temp {
+  font-size: clamp(1rem, 2.5vw, 1.4rem);
+  font-weight: 600;
+  color: #4facfe;
+}
+
+.weather-condition {
+  font-size: clamp(0.8rem, 2vw, 1rem);
+  font-weight: 400;
+  color: #2a5298;
+  opacity: 0.8;
+}
+
+.location-info {
+  margin-top: 0.3rem;
+  width: 100%;
+}
+
+.location-text {
+  font-size: clamp(0.7rem, 1.8vw, 0.9rem);
+  font-weight: 300;
+  color: #1e3c72;
+  opacity: 0.9;
+  font-style: italic;
+}
+
+.cpu-info {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.cpu-label {
+  font-size: clamp(0.8rem, 2vw, 1rem);
+  font-weight: 500;
+  color: #EA2264;
+  opacity: 0.8;
+}
+
+.cpu-temp {
+  font-size: clamp(1rem, 2.5vw, 1.4rem);
+  font-weight: 600;
+  color: #F78D60;
+}
+
 /* Ultra-wide optimization for maximum space usage */
 @media (min-width: 800px) and (max-height: 480px) {
   .digital-container {
