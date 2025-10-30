@@ -75,9 +75,9 @@ const AnalogClock: React.FC = () => {
 
   // Calculate rotation for analog clock hands
   // 12 o'clock position is at 0 degrees (pointing up)
-  const secondRotation = (analogTime.seconds * 6) - 90 // 6 degrees per second, -90 to start at 12
-  const minuteRotation = (analogTime.minutes * 6) + (analogTime.seconds * 0.1) - 90 // minute hand moves smoothly
-  const hourRotation = ((analogTime.hours % 12) * 30) + (analogTime.minutes * 0.5) - 90 // hour hand moves smoothly
+  const secondRotation = (analogTime.seconds * 6) // 6 degrees per second
+  const minuteRotation = (analogTime.minutes * 6) + (analogTime.seconds * 0.1) // minute hand moves smoothly
+  const hourRotation = ((analogTime.hours % 12) * 30) + (analogTime.minutes * 0.5) // hour hand moves smoothly
 
   return (
     <div className="analog-clock-page">
@@ -100,7 +100,7 @@ const AnalogClock: React.FC = () => {
                 className="hour-marker"
                 style={{
                   transform: isSmallDisplay 
-                    ? `rotate(${i * 30}deg) translateY(-105px)`
+                    ? `rotate(${i * 30}deg) translateY(-115px)`
                     : `rotate(${i * 30}deg) translateY(-180px)`
                 }}
               >
@@ -115,7 +115,7 @@ const AnalogClock: React.FC = () => {
                 className={`minute-marker ${i % 5 === 0 ? 'major' : ''}`}
                 style={{
                   transform: isSmallDisplay 
-                    ? `rotate(${i * 6}deg) translateY(-107px)`
+                    ? `rotate(${i * 6}deg) translateY(-117px)`
                     : `rotate(${i * 6}deg) translateY(-185px)`
                 }}
               >

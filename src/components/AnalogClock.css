@@ -188,8 +188,8 @@
 /* Analog Clock for 800x480 */
 .analog-clock-center {
   position: relative;
-  width: 280px;
-  height: 280px;
+  width: 300px;
+  height: 300px;
   flex-shrink: 0;
 }
 
@@ -361,31 +361,31 @@
 /* 800x480 Screen Specific Styles */
 @media (max-width: 800px) and (max-height: 480px) {
   .analog-clock-center .hour-hand {
-    height: 65px;
-    width: 5px;
-    margin-top: -65px;
-    margin-left: -2.5px;
+    height: 70px;
+    width: 6px;
+    margin-top: -70px;
+    margin-left: -3px;
   }
   
   .analog-clock-center .minute-hand {
-    height: 90px;
-    width: 3px;
-    margin-top: -90px;
-    margin-left: -1.5px;
+    height: 100px;
+    width: 4px;
+    margin-top: -100px;
+    margin-left: -2px;
   }
   
   .analog-clock-center .second-hand {
-    height: 100px;
+    height: 110px;
     width: 2px;
-    margin-top: -100px;
+    margin-top: -110px;
     margin-left: -1px;
     background: linear-gradient(to bottom, #ff4757 0%, #ff3742 100%);
     box-shadow: 0 0 6px rgba(255, 71, 87, 0.8);
   }
   
   .analog-clock-center .center-dot {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
   }
 }
 
