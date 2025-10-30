@@ -62,8 +62,6 @@ const DigitalClock: React.FC = () => {
             <span className="hours">{time.hours}</span>
             <span className="separator">:</span>
             <span className="minutes">{time.minutes}</span>
-            <span className="separator">:</span>
-            <span className="seconds">{time.seconds}</span>
             <span className="ampm">{time.ampm}</span>
           </div>
           <div className="date-display">
