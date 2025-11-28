@@ -1,0 +1,20 @@
+[Unit]
+Description=Raspberry Pi Clock Display
+After=network.target graphical.target
+
+[Service]
+Type=simple
+User=spark
+WorkingDirectory=/home/spark/Projs/rpiclock
+Environment="DISPLAY=:0"
+Environment="XAUTHORITY=/home/spark/.Xauthority"
+ExecStart=/home/spark/Projs/rpiclock/launch-complete.sh
+RemainAfterExit=yes
+ExecStop=/usr/bin/killall chromium-browser
+ExecStop=/usr/bin/pkill -f "npm run dev"
+ExecStop=/usr/bin/pkill -f "cpu-temp-server"
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=graphical.target
