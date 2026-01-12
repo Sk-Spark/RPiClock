@@ -2,6 +2,7 @@ import { useState } from 'react'
 import ImageSlideshow from './components/ImageSlideshow'
 import DigitalClock from './components/DigitalClock'
 import AnalogClock from './components/AnalogClock'
+import AdminQRCode from './components/AdminQRCode'
 import './App.css'
 
 // Define page configuration
@@ -35,6 +36,9 @@ function App() {
     <div className="app">
       {/* Render current page component dynamically */}
       <currentPage.component />
+      
+      {/* QR Code for Admin access */}
+      <AdminQRCode />
       
       {/* Navigation area - cycles through all pages */}
       <div 

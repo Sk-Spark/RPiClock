@@ -29,7 +29,8 @@ const ImageSlideshow: React.FC = () => {
       transitionDuration: 1.5, // seconds for crossfade
       shuffle: false,       // randomize order
       transitionEffect: 'fade', // fade, slide, zoom, rotate
-      slideDirection: 'random' // left, right, random
+      slideDirection: 'random', // left, right, random
+      backgroundMode: 'blur'  // gradient, blur, solid
     }
     return saved ? { ...defaults, ...JSON.parse(saved) } : defaults
   })
@@ -343,12 +344,33 @@ const ImageSlideshow: React.FC = () => {
 
   return (
     <div 
-      className="slideshow-page"
+      className={`slideshow-page bg-mode-${settings.backgroundMode}`}
       style={{
         '--bg-primary': bgColors.primary,
         '--bg-secondary': bgColors.secondary
       } as React.CSSProperties}
     >
+      {/* Blurred Background Layer */}
+      {settings.backgroundMode === 'blur' && images.length > 0 && (
+        <div className="slideshow-blur-bg">
+          {images.map((imageSrc, index) => (
+            <img
+              key={`blur-${index}`}
+              src={imageSrc}
+              alt=""
+              className={`blur-bg-image ${
+                index === currentIndex ? 'blur-bg-active' : 
+                index === previousIndex ? 'blur-bg-prev' : 
+                'blur-bg-hidden'
+              }`}
+              style={{
+                '--transition-duration': `${settings.transitionDuration}s`
+              } as React.CSSProperties}
+            />
+          ))}
+        </div>
+      )}
+
       <div className="slideshow-container">
         {/* Image Display with Crossfade */}
         <div className="slideshow-image-wrapper">
@@ -487,6 +509,21 @@ const ImageSlideshow: React.FC = () => {
                   onChange={(e) => setSettings({...settings, shuffle: e.target.checked})}
                 />
                 <span>Shuffle Mode</span>
+              </label>
+            </div>
+
+            <div className="settings-group">
+              <label>
+                <span>Background Style</span>
+                <select
+                  value={settings.backgroundMode}
+                  onChange={(e) => setSettings({...settings, backgroundMode: e.target.value})}
+                  className="settings-select"
+                >
+                  <option value="blur">Blurred Image</option>
+                  <option value="gradient">Color Gradient</option>
+                  <option value="solid">Solid Dark</option>
+                </select>
               </label>
             </div>
           </div>

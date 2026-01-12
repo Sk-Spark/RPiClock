@@ -11,8 +11,8 @@
   position: relative;
 }
 
-/* Smooth gradient background with transition */
-.slideshow-page::before {
+/* Gradient background mode */
+.slideshow-page.bg-mode-gradient::before {
   content: '';
   position: absolute;
   top: 0;
@@ -21,6 +21,75 @@
   bottom: 0;
   background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
   transition: background 3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 0;
+}
+
+/* Solid background mode */
+.slideshow-page.bg-mode-solid {
+  background: #0a0a0f;
+}
+
+/* Blurred background layer */
+.slideshow-blur-bg {
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  right: -20px;
+  bottom: -20px;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.blur-bg-image {
+  position: absolute;
+  width: calc(100% + 40px);
+  height: calc(100% + 40px);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  filter: blur(30px) brightness(0.5) saturate(1.2);
+  transition: opacity var(--transition-duration, 1.5s) ease-in-out;
+  will-change: opacity;
+}
+
+.blur-bg-active {
+  opacity: 1;
+  z-index: 2;
+}
+
+.blur-bg-prev {
+  opacity: 0;
+  z-index: 1;
+}
+
+.blur-bg-hidden {
+  opacity: 0;
+  z-index: 0;
+}
+
+/* Dark overlay for blur mode to ensure readability */
+.slideshow-page.bg-mode-blur::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.15);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Legacy gradient for non-blur modes */
+.slideshow-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
   z-index: 0;
 }
 

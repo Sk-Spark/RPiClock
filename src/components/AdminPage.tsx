@@ -7,6 +7,9 @@ interface ImageInfo {
   size: number
 }
 
+// Simple password for admin access (you can change this)
+const ADMIN_PASSWORD = 'rashu_shuku'
+
 const AdminPage: React.FC = () => {
   const [images, setImages] = useState<ImageInfo[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -18,12 +21,35 @@ const AdminPage: React.FC = () => {
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Use the same hostname as the page, but port 3002 for the API
-  const API_URL = `http://${window.location.hostname}:3002/api/images`
+  // Password protection state
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    // Check if already authenticated in this session
+    return sessionStorage.getItem('adminAuth') === 'true'
+  })
+  const [password, setPassword] = useState('')
+  const [passwordError, setPasswordError] = useState(false)
+
+  // Use relative URL - API is now integrated into Vite server
+  const API_URL = '/api/images'
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (password === ADMIN_PASSWORD) {
+      setIsAuthenticated(true)
+      sessionStorage.setItem('adminAuth', 'true')
+      setPasswordError(false)
+      loadImages()
+    } else {
+      setPasswordError(true)
+      setPassword('')
+    }
+  }
 
   useEffect(() => {
-    loadImages()
-  }, [])
+    if (isAuthenticated) {
+      loadImages()
+    }
+  }, [isAuthenticated])
 
   const loadImages = async () => {
     try {
@@ -128,12 +154,42 @@ const AdminPage: React.FC = () => {
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
   }
 
+  // Password login screen
+  if (!isAuthenticated) {
+    return (
+      <div className="admin-page">
+        <div className="login-container">
+          <div className="login-box">
+            <h1>🔐 Admin Access</h1>
+            <p>Enter password to manage images</p>
+            <form onSubmit={handleLogin}>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter password"
+                className={`login-input ${passwordError ? 'error' : ''}`}
+                autoFocus
+              />
+              {passwordError && (
+                <p className="login-error">Incorrect password</p>
+              )}
+              <button type="submit" className="btn btn-primary login-btn">
+                Login
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="admin-page">
       <div className="admin-container">
         {/* Header */}
         <header className="admin-header">
-          <h1>📷 Image Manager</h1>
+          <h1>Image Manager</h1>
           <p className="admin-subtitle">Manage your slideshow images</p>
         </header>
 

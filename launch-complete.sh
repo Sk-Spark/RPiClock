@@ -46,8 +46,8 @@ echo "Image API started (PID: $IMAGE_API_PID)"
 
 echo "Step 3: Starting development server..."
 
-# Start the development server in background
-npm run dev &
+# Start the development server in background (--host to allow network access)
+npm run dev -- --host &
 SERVER_PID=$!
 
 echo "Development server started (PID: $SERVER_PID)"
