@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import ImageSlideshow from './components/ImageSlideshow'
 import DigitalClock from './components/DigitalClock'
 import AnalogClock from './components/AnalogClock'
 import './App.css'
@@ -11,6 +12,7 @@ interface PageConfig {
 }
 
 const pages: PageConfig[] = [
+  { id: 'slideshow', name: 'Image Slideshow', component: ImageSlideshow },
   { id: 'digital', name: 'Digital Clock', component: DigitalClock },
   { id: 'analog', name: 'Analog Clock', component: AnalogClock },
   // Add more pages here easily:

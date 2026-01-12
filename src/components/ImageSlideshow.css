@@ -1,0 +1,617 @@
+.slideshow-page {
+  --bg-primary: #1a1a2e;
+  --bg-secondary: #0f3460;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Smooth gradient background with transition */
+.slideshow-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+  transition: background 3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 0;
+}
+
+.slideshow-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.slideshow-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.slideshow-image {
+  position: absolute;
+  max-width: calc(100% - 40px);
+  max-height: calc(100% - 40px);
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  transition: opacity var(--transition-duration, 1.5s) ease-in-out;
+  will-change: opacity, transform;
+}
+
+/* Hidden images - preloaded but invisible */
+.slideshow-image-hidden {
+  opacity: 0;
+  z-index: 0;
+  pointer-events: none;
+  transform: scale(1);
+}
+
+/* Previous image - fading out */
+.slideshow-image-prev {
+  opacity: 0;
+  z-index: 1;
+  transform: scale(var(--zoom-amount, 1.08));
+  animation: none;
+}
+
+/* Current/Active image - fully visible with slow zoom */
+.slideshow-image-active {
+  opacity: 1;
+  z-index: 2;
+  animation: slowZoom var(--zoom-duration, 6s) ease-in-out forwards;
+}
+
+/* Slow Ken Burns zoom effect */
+@keyframes slowZoom {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(var(--zoom-amount, 1.08));
+  }
+}
+
+/* ==================== TRANSITION EFFECTS ==================== */
+
+/* FADE Transition (default) */
+.transition-fade.slideshow-image {
+  transition: opacity var(--transition-duration, 1.5s) ease-in-out;
+}
+
+.transition-fade.slideshow-image-hidden {
+  opacity: 0;
+  transform: scale(1);
+}
+
+.transition-fade.slideshow-image-prev {
+  opacity: 0;
+}
+
+.transition-fade.slideshow-image-active {
+  opacity: 1;
+}
+
+/* SLIDE Transition */
+.transition-slide.slideshow-image {
+  transition: opacity var(--transition-duration, 1.5s) ease-out;
+}
+
+.transition-slide.slideshow-image-hidden {
+  opacity: 0;
+  transform: translateX(-50%) scale(0.95);
+}
+
+/* Slide RIGHT direction (exit to right, enter from left) */
+.transition-slide.slide-right.slideshow-image-prev {
+  z-index: 1;
+  animation: slideOutRight var(--transition-duration, 1.5s) cubic-bezier(0.22, 0.61, 0.36, 1) forwards !important;
+}
+
+.transition-slide.slide-right.slideshow-image-active {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  animation: slideInFromLeft var(--transition-duration, 1.5s) cubic-bezier(0.22, 0.61, 0.36, 1) forwards,
+             slideZoom var(--zoom-duration, 6s) ease-in-out var(--transition-duration, 1.5s) forwards;
+}
+
+/* Slide LEFT direction (exit to left, enter from right) */
+.transition-slide.slide-left.slideshow-image-prev {
+  z-index: 1;
+  animation: slideOutLeft var(--transition-duration, 1.5s) cubic-bezier(0.22, 0.61, 0.36, 1) forwards !important;
+}
+
+.transition-slide.slide-left.slideshow-image-active {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  animation: slideInFromRight var(--transition-duration, 1.5s) cubic-bezier(0.22, 0.61, 0.36, 1) forwards,
+             slideZoom var(--zoom-duration, 6s) ease-in-out var(--transition-duration, 1.5s) forwards;
+}
+
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(var(--zoom-amount, 1.08));
+  }
+  to {
+    opacity: 0;
+    transform: translateX(150%) scale(0.95);
+  }
+}
+
+@keyframes slideOutLeft {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(var(--zoom-amount, 1.08));
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-150%) scale(0.95);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(50%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes slideZoom {
+  from {
+    transform: translateX(0) scale(1);
+  }
+  to {
+    transform: translateX(0) scale(var(--zoom-amount, 1.08));
+  }
+}
+
+/* ZOOM Transition */
+.transition-zoom.slideshow-image {
+  transition: opacity var(--transition-duration, 1.5s) ease-in-out,
+              transform var(--transition-duration, 1.5s) ease-in-out;
+}
+
+.transition-zoom.slideshow-image-hidden {
+  opacity: 0;
+  transform: scale(0.3);
+}
+
+.transition-zoom.slideshow-image-prev {
+  opacity: 0;
+  transform: scale(1.5);
+  animation: none;
+}
+
+.transition-zoom.slideshow-image-active {
+  opacity: 1;
+  transform: scale(1);
+  animation: zoomPulse var(--zoom-duration, 6s) ease-in-out forwards;
+}
+
+@keyframes zoomPulse {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(var(--zoom-amount, 1.08));
+  }
+}
+
+/* ROTATE Transition */
+.transition-rotate.slideshow-image {
+  transition: opacity var(--transition-duration, 1.5s) ease-in-out,
+              transform var(--transition-duration, 1.5s) ease-in-out;
+}
+
+.transition-rotate.slideshow-image-hidden {
+  opacity: 0;
+  transform: scale(0.8) rotate(15deg);
+}
+
+.transition-rotate.slideshow-image-prev {
+  opacity: 0;
+  transform: scale(0.8) rotate(-15deg);
+  animation: none;
+}
+
+.transition-rotate.slideshow-image-active {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+  animation: rotateZoom var(--zoom-duration, 6s) ease-in-out forwards;
+}
+
+@keyframes rotateZoom {
+  from {
+    transform: scale(1) rotate(0deg);
+  }
+  to {
+    transform: scale(var(--zoom-amount, 1.08)) rotate(0deg);
+  }
+}
+
+/* Settings Button */
+.settings-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.settings-button:hover {
+  background: rgba(0, 0, 0, 0.7);
+  transform: rotate(45deg);
+}
+
+/* Settings Panel */
+.settings-panel {
+  position: absolute;
+  top: 80px;
+  right: 20px;
+  width: 280px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.85);
+  border-radius: 12px;
+  padding: 20px;
+  backdrop-filter: blur(20px);
+  z-index: 100;
+  color: white;
+  font-family: 'Inter', sans-serif;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Custom scrollbar for settings panel */
+.settings-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.settings-panel::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.settings-panel::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.settings-panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.settings-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.settings-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  padding: 0;
+  line-height: 1;
+}
+
+.settings-close:hover {
+  opacity: 1;
+}
+
+.settings-group {
+  margin-bottom: 18px;
+}
+
+.settings-group label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-group span {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.settings-group input[type="range"] {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.2);
+  outline: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.settings-group input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.settings-group input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Settings Select Dropdown */
+.settings-select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.settings-select:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.settings-select:focus {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.settings-select option {
+  background: #1a1a2e;
+  color: white;
+}
+
+/* Settings Checkbox */
+.settings-checkbox {
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 12px !important;
+  cursor: pointer;
+}
+
+.settings-checkbox input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #4a9eff;
+}
+
+.settings-checkbox span {
+  opacity: 1;
+}
+
+/* Controls wrapper */
+.slideshow-controls {
+  transition: opacity 0.5s ease;
+}
+
+.slideshow-controls.visible {
+  opacity: 1;
+}
+
+.slideshow-controls.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Navigation Buttons */
+.slideshow-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: white;
+  font-size: 3rem;
+  width: 60px;
+  height: 100px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.5;
+}
+
+.slideshow-nav:hover {
+  background: rgba(255, 255, 255, 0.25);
+  opacity: 1;
+}
+
+.slideshow-prev {
+  left: 0;
+  border-radius: 0 8px 8px 0;
+}
+
+.slideshow-next {
+  right: 0;
+  border-radius: 8px 0 0 8px;
+}
+
+/* Dots Indicator */
+.slideshow-dots {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+}
+
+.slideshow-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.slideshow-dot:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.slideshow-dot.active {
+  background: white;
+  border-color: white;
+  transform: scale(1.2);
+}
+
+/* Image Counter */
+.slideshow-counter {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-family: 'Inter', sans-serif;
+  backdrop-filter: blur(10px);
+}
+
+/* Loading State */
+.slideshow-loading {
+  color: white;
+  font-size: 1.5rem;
+  font-family: 'Inter', sans-serif;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Error State */
+.slideshow-error {
+  text-align: center;
+  color: white;
+  font-family: 'Inter', sans-serif;
+}
+
+.error-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.7;
+}
+
+.error-message {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.error-hint {
+  font-size: 1rem;
+  opacity: 0.7;
+}
+
+.error-hint code {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 800px) {
+  .slideshow-nav {
+    font-size: 2rem;
+    width: 40px;
+    height: 70px;
+  }
+
+  .slideshow-dot {
+    width: 10px;
+    height: 10px;
+  }
+
+  .slideshow-counter {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-height: 480px) {
+  .slideshow-dots {
+    bottom: 15px;
+  }
+
+  .slideshow-counter {
+    bottom: 15px;
+    right: 15px;
+  }
+}

@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Slideshow images (user-specific)
+src/assets/images/*
+!src/assets/images/.gitkeep
