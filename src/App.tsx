@@ -13,7 +13,7 @@ interface PageConfig {
 }
 
 const pages: PageConfig[] = [
-  { id: 'slideshow', name: 'Image Slideshow', component: ImageSlideshow },
+  // { id: 'slideshow', name: 'Image Slideshow', component: ImageSlideshow },
   { id: 'digital', name: 'Digital Clock', component: DigitalClock },
   { id: 'analog', name: 'Analog Clock', component: AnalogClock },
   // Add more pages here easily:
@@ -38,7 +38,7 @@ function App() {
       <currentPage.component />
       
       {/* QR Code for Admin access */}
-      <AdminQRCode />
+      {/* <AdminQRCode /> */}
       
       {/* Navigation area - cycles through all pages */}
       <div 
