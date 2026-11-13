@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react'
+import { formatClockHours, getClockHandAngles } from '../utils/timeFormat'
+import type { ClockFaceProps } from '../utils/timeFormat'
 import './AnalogClock.css'
 
 interface TimeData {
   hours: string
+  hours24: string
   minutes: string
   seconds: string
   ampm: string
@@ -10,9 +13,10 @@ interface TimeData {
   day: string
 }
 
-const AnalogClock: React.FC = () => {
+const AnalogClock: React.FC<ClockFaceProps> = ({ timeFormat = '24' }) => {
   const [time, setTime] = useState<TimeData>({
     hours: '00',
+    hours24: '00',
     minutes: '00',
     seconds: '00',
     ampm: 'AM',
@@ -42,6 +46,7 @@ const AnalogClock: React.FC = () => {
 
       setTime({
         hours: hours12.toString().padStart(2, '0'),
+        hours24: hours24.toString().padStart(2, '0'),
         minutes: minutes.toString().padStart(2, '0'),
         seconds: seconds.toString().padStart(2, '0'),
         ampm,
@@ -73,19 +78,16 @@ const AnalogClock: React.FC = () => {
     }
   }, [])
 
-  // Calculate rotation for analog clock hands
-  // 12 o'clock position is at 0 degrees (pointing up)
-  const secondRotation = (analogTime.seconds * 6) // 6 degrees per second
-  const minuteRotation = (analogTime.minutes * 6) + (analogTime.seconds * 0.1) // minute hand moves smoothly
-  const hourRotation = ((analogTime.hours % 12) * 30) + (analogTime.minutes * 0.5) // hour hand moves smoothly
+  const { hourRotation, minuteRotation, secondRotation } = getClockHandAngles(analogTime)
+  const displayTime = formatClockHours(Number(time.hours24), timeFormat)
 
   return (
     <div className="analog-clock-page">
       <div className="analog-container-800x480">
         {/* Date Display - Left Column */}
         <div className="date-info-left">
-          <div className="day">{time.day}</div>
-          <div className="date">{time.date}</div>
+          <div className="analog-day">{time.day}</div>
+          <div className="analog-date">{time.date}</div>
         </div>
 
         {/* Clock Column - Right Side */}
@@ -144,10 +146,15 @@ const AnalogClock: React.FC = () => {
 
           {/* Digital Time Display */}
           <div className="digital-time-right">
-            <div className="digital-time-large">
-              {time.hours}:{time.minutes}:{time.seconds}
+            <div
+              className="digital-time-large"
+              role="timer"
+              aria-live="off"
+              aria-label={`${displayTime.hours}:${time.minutes}:${time.seconds}${displayTime.ampm ? ` ${displayTime.ampm}` : ''}`}
+            >
+              {displayTime.hours}:{time.minutes}:{time.seconds}
             </div>
-            <div className="digital-ampm-large">{time.ampm}</div>
+            {displayTime.ampm && <div className="digital-ampm-large">{displayTime.ampm}</div>}
           </div>
         </div>
       </div>

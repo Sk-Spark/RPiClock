@@ -1,0 +1,16 @@
+[Unit]
+Description=RPiClock CPU temperature API
+
+[Service]
+Type=exec
+User=spark
+WorkingDirectory=/home/spark/RPiClock/app
+ExecStart=/bin/bash /home/spark/RPiClock/app/scripts/cpu-temp-server.sh
+Restart=on-failure
+RestartSec=3
+KillMode=control-group
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

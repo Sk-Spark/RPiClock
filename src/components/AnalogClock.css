@@ -5,22 +5,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  background: #0c1424;
   font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   overflow: hidden;
   position: relative;
-}
-
-.analog-clock-page::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at 30% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-              radial-gradient(circle at 70% 30%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
-  pointer-events: none;
 }
 
 /* Original container for larger screens */
@@ -87,26 +75,27 @@
   flex: 1;
   text-align: left;
   color: white;
-  text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  text-shadow: none;
   padding-left: 1rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
-.date-info-left .day {
+.date-info-left .analog-day {
   font-size: 2.5rem;
-  font-weight: 500;
+  font-weight: 600;
+  color: #eff4ff;
   margin-bottom: 0.5rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   line-height: 1;
 }
 
-.date-info-left .date {
+.date-info-left .analog-date {
   font-size: 1.4rem;
-  font-weight: 300;
-  opacity: 0.9;
+  font-weight: 500;
+  color: #c2ccdc;
   line-height: 1.2;
 }
 
@@ -143,7 +132,7 @@
 .digital-time-right {
   text-align: center;
   color: white;
-  text-shadow: 0 0 20px rgba(255, 255, 255, 0.6);
+  text-shadow: none;
   display: flex;
   flex-direction: row;
   align-items: baseline;
@@ -154,7 +143,7 @@
 
 .digital-time-large {
   font-size: 2.5rem;
-  font-weight: 400;
+  font-weight: 500;
   font-family: 'Inter', monospace;
   letter-spacing: 0.05em;
   line-height: 1;
@@ -162,8 +151,8 @@
 
 .digital-ampm-large {
   font-size: 1.2rem;
-  font-weight: 300;
-  opacity: 0.8;
+  font-weight: 500;
+  color: #c2ccdc;
   letter-spacing: 0.1em;
 }
 
@@ -197,13 +186,10 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.08) 100%);
-  backdrop-filter: blur(15px);
-  border: 3px solid rgba(255, 255, 255, 0.2);
+  background: #111e32;
+  border: 2px solid #536783;
   position: relative;
-  box-shadow: 
-    0 0 60px rgba(255, 255, 255, 0.15),
-    inset 0 0 60px rgba(255, 255, 255, 0.08);
+  box-shadow: none;
 }
 
 /* Hour markers */
@@ -219,7 +205,7 @@
 .marker-line {
   width: 100%;
   height: 100%;
-  background: rgba(255, 255, 255, 0.9);
+  background: #e5edf8;
   border-radius: 3px;
 }
 
@@ -240,7 +226,7 @@
 .marker-dot {
   width: 100%;
   height: 100%;
-  background: rgba(255, 255, 255, 0.5);
+  background: #9baac0;
   border-radius: 1px;
 }
 
@@ -257,28 +243,28 @@
 .hour-hand {
   width: 8px;
   height: 120px;
-  background: linear-gradient(to bottom, #ffffff 0%, #e0e0e0 100%);
+  background: #eff4ff;
   margin-top: -120px;
   margin-left: -4px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+  box-shadow: none;
 }
 
 .minute-hand {
   width: 6px;
   height: 160px;
-  background: linear-gradient(to bottom, #ffffff 0%, #f0f0f0 100%);
+  background: #eff4ff;
   margin-top: -160px;
   margin-left: -3px;
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+  box-shadow: none;
 }
 
 .second-hand {
   width: 3px;
   height: 170px;
-  background: linear-gradient(to bottom, #ff4757 0%, #ff3742 100%);
+  background: #ff5364;
   margin-top: -170px;
   margin-left: -1.5px;
-  box-shadow: 0 0 8px rgba(255, 71, 87, 0.6);
+  box-shadow: none;
   transition: transform 0.05s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -288,20 +274,14 @@
   left: 50%;
   width: 20px;
   height: 20px;
-  background: radial-gradient(circle, #ffffff 0%, #e0e0e0 100%);
+  background: #eff4ff;
   border-radius: 50%;
   transform: translate(-50%, -50%);
-  box-shadow: 
-    0 0 15px rgba(0, 0, 0, 0.4),
-    inset 0 3px 6px rgba(255, 255, 255, 0.6);
+  box-shadow: none;
 }
 
 /* Responsive adjustments for 7" displays (800x480) */
 @media (max-width: 800px) and (max-height: 480px) {
-  .analog-clock-page {
-    background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
-  }
-  
   .analog-container {
     flex-direction: row;
     justify-content: space-around;
@@ -379,8 +359,8 @@
     width: 2px;
     margin-top: -110px;
     margin-left: -1px;
-    background: linear-gradient(to bottom, #ff4757 0%, #ff3742 100%);
-    box-shadow: 0 0 6px rgba(255, 71, 87, 0.8);
+    background: #ff5364;
+    box-shadow: none;
   }
   
   .analog-clock-center .center-dot {

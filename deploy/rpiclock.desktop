@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=RPiClock
+Comment=Fullscreen Raspberry Pi clock
+Exec=/usr/local/bin/rpiclock-session
+Type=Application

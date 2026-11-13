@@ -1,0 +1,17 @@
+[Unit]
+Description=RPiClock web application and image API
+After=network.target
+
+[Service]
+Type=exec
+User=spark
+WorkingDirectory=/home/spark/RPiClock/app
+ExecStart=/usr/bin/node /home/spark/RPiClock/app/node_modules/vite/bin/vite.js --host 127.0.0.1 --port 5173 --strictPort
+Restart=on-failure
+RestartSec=3
+KillMode=control-group
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

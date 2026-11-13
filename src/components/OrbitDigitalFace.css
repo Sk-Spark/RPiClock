@@ -1,0 +1,212 @@
+.orbit-digital-face {
+  width: 100vw;
+  height: 100vh;
+  padding: clamp(28px, 7.75vw, 64px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(24px, 8vw, 64px);
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 0% 0%, rgba(22, 56, 177, 0.65), transparent 35%),
+    radial-gradient(ellipse at 100% 100%, rgba(88, 20, 178, 0.6), transparent 32%),
+    #070815;
+  color: #ece9f5;
+  font-family: 'Inter', 'Segoe UI', 'DejaVu Sans', sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.orbit-digital-info {
+  min-width: 0;
+}
+
+.orbit-greeting,
+.orbit-date {
+  color: #b1b4c9;
+  font-size: clamp(18px, 2.75vw, 24px);
+  line-height: 1.5;
+}
+
+.orbit-time {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin: 14px 0 10px;
+  font-size: clamp(64px, 12vw, 100px);
+  font-weight: 300;
+  letter-spacing: -0.06em;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.orbit-time-separator {
+  color: #7f879f;
+}
+
+.orbit-minutes {
+  color: #d6bdf4;
+}
+
+.orbit-ampm {
+  margin-left: 8px;
+  color: #b1b4c9;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.orbit-day-progress {
+  margin-top: 30px;
+}
+
+.orbit-day-progress progress {
+  display: block;
+  width: 100%;
+  height: 8px;
+  appearance: none;
+  border: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #2b2f45;
+}
+
+.orbit-day-progress progress::-webkit-progress-bar {
+  background: #2b2f45;
+  border-radius: 8px;
+}
+
+.orbit-day-progress progress::-webkit-progress-value {
+  background: linear-gradient(90deg, #287aff, #a443fb);
+  border-radius: 8px;
+}
+
+.orbit-day-progress progress::-moz-progress-bar {
+  background: linear-gradient(90deg, #287aff, #a443fb);
+  border-radius: 8px;
+}
+
+.orbit-progress-caption {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  color: #b1b4c9;
+  font-size: clamp(13px, 1.75vw, 16px);
+}
+
+.orbit-seconds-circle {
+  position: relative;
+  justify-self: center;
+  width: min(100%, 256px);
+  aspect-ratio: 1;
+}
+
+.orbit-seconds-circle svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.orbit-ring-track,
+.orbit-ring-progress {
+  fill: none;
+  stroke-width: 10;
+}
+
+.orbit-ring-track {
+  stroke: #2b2f45;
+}
+
+.orbit-ring-progress {
+  stroke-linecap: round;
+}
+
+.orbit-seconds-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.orbit-seconds-value {
+  font-size: clamp(48px, 8vw, 64px);
+  font-weight: 300;
+  line-height: 1.1;
+}
+
+.orbit-seconds-label {
+  margin-top: 6px;
+  padding-left: 0.35em;
+  color: #b1b4c9;
+  font-size: 12px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+}
+
+.orbit-week {
+  margin-top: 14px;
+  padding: 3px 12px;
+  border: 1px solid #303449;
+  border-radius: 20px;
+  background: #111423;
+  color: #b1b4c9;
+  font-size: 13px;
+}
+
+.app[data-face="orbit-digital"] .face-navigation-button {
+  border-color: #373a56;
+  background: #0a0e20;
+  color: #beb8e6;
+}
+
+@media (max-width: 600px) and (max-height: 480px) {
+  .orbit-digital-face {
+    padding: 28px;
+    gap: 24px;
+  }
+
+  .orbit-greeting,
+  .orbit-date {
+    font-size: 15px;
+  }
+
+  .orbit-time {
+    font-size: 60px;
+  }
+
+  .orbit-day-progress {
+    margin-top: 20px;
+  }
+
+  .orbit-seconds-value {
+    font-size: 42px;
+  }
+
+  .orbit-seconds-label {
+    font-size: 9px;
+  }
+
+  .orbit-week {
+    margin-top: 8px;
+    padding: 2px 8px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 700px) and (min-height: 481px) {
+  .orbit-digital-face {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    align-content: center;
+    gap: 36px;
+  }
+
+  .orbit-digital-info {
+    width: min(100%, 380px);
+  }
+
+  .orbit-seconds-circle {
+    width: min(100%, 240px);
+  }
+}

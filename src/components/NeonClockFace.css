@@ -1,0 +1,68 @@
+.neon-clock-face {
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #000;
+  color: #ff1923;
+}
+
+.neon-clock-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(16px, 5vh, 24px);
+}
+
+.neon-clock-time {
+  width: min(38vw, 310px);
+  height: clamp(68px, 24vh, 108px);
+  overflow: visible;
+  filter: drop-shadow(0 0 6px rgba(255, 25, 35, 0.5));
+}
+
+.neon-clock-time-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.neon-clock-ampm {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.neon-clock-time path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.neon-clock-time circle {
+  fill: currentColor;
+}
+
+.neon-clock-date {
+  padding-left: 0.3em;
+  font-family: 'DejaVu Sans', 'Segoe UI', sans-serif;
+  font-size: clamp(16px, 2.75vw, 24px);
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  text-shadow: 0 0 8px rgba(255, 25, 35, 0.45);
+}
+
+.app[data-face="neon-red"] .face-navigation-button {
+  border-color: rgba(255, 25, 35, 0.35);
+  background: #080000;
+  color: #ff1923;
+}
+
+.app[data-face="neon-red"] .face-navigation-button:hover,
+.app[data-face="neon-red"] .face-navigation-button:active {
+  background: #200307;
+}

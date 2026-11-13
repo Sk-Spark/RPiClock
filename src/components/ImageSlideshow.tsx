@@ -5,7 +5,7 @@ const ImageSlideshow: React.FC = () => {
   const [images, setImages] = useState<string[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [previousIndex, setPreviousIndex] = useState<number | null>(null)
-  const [isTransitioning, setIsTransitioning] = useState(false)
+  const [, setIsTransitioning] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   
   // Refs to track current values for interval callbacks
@@ -53,9 +53,6 @@ const ImageSlideshow: React.FC = () => {
       setSlideDirection(settings.slideDirection)
     }
   }, [settings.slideDirection])
-
-  // Transition duration in ms (from settings)
-  const TRANSITION_DURATION = settings.transitionDuration * 1000
 
   // Slideshow interval in milliseconds (from settings)
   const SLIDESHOW_INTERVAL = settings.slideDuration * 1000

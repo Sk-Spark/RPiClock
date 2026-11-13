@@ -1,0 +1,10 @@
+[Unit]
+Description=RPiClock fullscreen Chromium display
+StartLimitIntervalSec=0
+
+[Service]
+Type=exec
+ExecStart=/bin/bash /home/spark/RPiClock/app/launch-kiosk.sh
+Restart=always
+RestartSec=3
+KillMode=control-group

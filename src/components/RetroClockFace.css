@@ -1,0 +1,152 @@
+.retro-clock-face {
+  --retro-mint: #91e6aa;
+  --retro-dim: #101b13;
+  --retro-digit-height: min(33vh, 22vw, 200px);
+  width: 100vw;
+  height: 100vh;
+  padding: clamp(16px, 4vw, 40px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: radial-gradient(ellipse at top, #0a0e0a 0%, #050705 70%);
+  color: var(--retro-mint);
+  font-family: 'DejaVu Sans Mono', 'Liberation Mono', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.retro-clock-content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(20px, 8vh, 48px);
+}
+
+.retro-time {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 3vw, 24px);
+}
+
+.retro-digit-pair {
+  display: flex;
+  gap: clamp(4px, 1.5vw, 12px);
+}
+
+.retro-digit {
+  display: block;
+  flex-shrink: 0;
+  height: var(--retro-digit-height);
+  width: calc(var(--retro-digit-height) * 0.555556);
+}
+
+.retro-segment-on {
+  fill: var(--retro-mint);
+}
+
+.retro-segment-off {
+  fill: var(--retro-dim);
+}
+
+.retro-colon {
+  display: block;
+  flex-shrink: 0;
+  height: var(--retro-digit-height);
+  width: calc(var(--retro-digit-height) / 9);
+  fill: var(--retro-mint);
+}
+
+.retro-time-side {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: calc(var(--retro-digit-height) * 0.32);
+  gap: calc(var(--retro-digit-height) * 0.12);
+}
+
+.retro-ampm {
+  font-size: calc(var(--retro-digit-height) * 0.14);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.retro-seconds .retro-digit {
+  height: calc(var(--retro-digit-height) * 0.28);
+  width: calc(var(--retro-digit-height) * 0.155556);
+}
+
+.retro-seconds .retro-digit-pair {
+  gap: clamp(2px, 0.5vw, 5px);
+}
+
+.retro-date {
+  max-width: 100%;
+  font-size: clamp(12px, 2.5vw, 26px);
+  line-height: 1.4;
+  letter-spacing: 0.14em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.retro-status {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 36px;
+  font-size: clamp(12px, 2.5vw, 24px);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.retro-weather {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 1.5vw, 16px);
+  min-width: 0;
+}
+
+.retro-weather-symbol {
+  flex-shrink: 0;
+  width: clamp(24px, 4.5vw, 40px);
+  height: clamp(24px, 4.5vw, 40px);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.retro-weather > span,
+.retro-cpu {
+  white-space: nowrap;
+}
+
+.retro-condition {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.retro-cpu {
+  flex-shrink: 0;
+}
+
+@media (max-width: 600px) {
+  .retro-clock-face {
+    --retro-digit-height: min(30vh, 20vw);
+  }
+
+  .retro-status {
+    gap: 12px;
+  }
+
+  .retro-date {
+    letter-spacing: 0.08em;
+  }
+}

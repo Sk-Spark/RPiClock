@@ -1,16 +1,26 @@
 import React, { useState, useEffect } from 'react'
+import RetroClockFace from './RetroClockFace'
+import NeonClockFace from './NeonClockFace'
+import OrbitDigitalFace from './OrbitDigitalFace'
+import TealAnalogFace from './TealAnalogFace'
+import { formatClockHours } from '../utils/timeFormat'
+import type { ClockFaceProps } from '../utils/timeFormat'
 import './DigitalClock.css'
 
-interface TimeData {
+export interface TimeData {
+  timestamp: number
   hours: string
+  hours24: string
   minutes: string
   seconds: string
   ampm: string
   date: string
   day: string
+  fullDate: string
+  shortDate: string
 }
 
-interface SystemData {
+export interface SystemData {
   cpuTemp: string
   weather: {
     temp: string
@@ -23,14 +33,20 @@ interface SystemData {
   }
 }
 
-const DigitalClock: React.FC = () => {
+const DigitalClock: React.FC<ClockFaceProps & { variant?: 'modern' | 'retro' | 'neon' | 'orbit' | 'teal' }> = ({
+  variant = 'modern', timeFormat = '24'
+}) => {
   const [time, setTime] = useState<TimeData>({
+    timestamp: Date.now(),
     hours: '00',
+    hours24: '00',
     minutes: '00',
     seconds: '00',
     ampm: 'AM',
     date: '',
-    day: ''
+    day: '',
+    fullDate: '',
+    shortDate: ''
   })
 
   const [systemData, setSystemData] = useState<SystemData>({
@@ -64,12 +80,16 @@ const DigitalClock: React.FC = () => {
       const date = `${month} ${now.getDate()}, ${now.getFullYear()}`
 
       setTime({
+        timestamp: now.getTime(),
         hours: hours12.toString().padStart(2, '0'),
+        hours24: hours24.toString().padStart(2, '0'),
         minutes: minutes.toString().padStart(2, '0'),
         seconds: seconds.toString().padStart(2, '0'),
         ampm,
         date,
-        day
+        day,
+        fullDate: `${day} ${now.getDate()} ${month} ${now.getFullYear()}`,
+        shortDate: `${day.slice(0, 3)} ${now.getDate().toString().padStart(2, '0')} ${month.slice(0, 3)}`
       })
     }
 
@@ -92,35 +112,33 @@ const DigitalClock: React.FC = () => {
     }
 
     updateTime()
-    updateSystemData() // Initial fetch
+    const showSystemInfo = variant === 'modern' || variant === 'retro'
+    if (showSystemInfo) updateSystemData()
     
     const timeInterval = setInterval(updateTime, 1000)
-    const systemInterval = setInterval(updateSystemData, 30000) // Update every 30 seconds
+    const systemInterval = showSystemInfo ? setInterval(updateSystemData, 30000) : undefined
 
     return () => {
       clearInterval(timeInterval)
-      clearInterval(systemInterval)
+      if (systemInterval !== undefined) clearInterval(systemInterval)
     }
-  }, [])
+  }, [variant])
 
   const fetchCPUTemperature = async (): Promise<string> => {
     try {
       // Try to read from local CPU temperature service
       const response = await fetch('http://localhost:3001')
-      if (response.ok) {
-        const data = await response.json()
-        return `${Math.round(data.temperature)}°C`
+      if (!response.ok) {
+        throw new Error(`CPU temperature API error: ${response.status}`)
       }
-      
-      // Fallback: simulate temperature for demo
-      const simulatedTemp = 45 + Math.random() * 15
-      return `${Math.round(simulatedTemp)}°C`
-      
+      const data = await response.json()
+      if (typeof data.temperature !== 'number' || !Number.isFinite(data.temperature)) {
+        throw new Error('CPU temperature API returned invalid data')
+      }
+      return `${Math.round(data.temperature)}°C`
     } catch (error) {
       console.warn('Failed to read CPU temperature:', error)
-      // Return simulated temperature as fallback
-      const simulatedTemp = 50 + Math.random() * 10
-      return `${Math.round(simulatedTemp)}°C`
+      return '--°C'
     }
   }
 
@@ -231,31 +249,6 @@ const DigitalClock: React.FC = () => {
   // Location is now configured via environment variables
   // No need for browser geolocation
 
-  const getWeatherIcon = (iconCode: string): string => {
-    const iconMap: { [key: string]: string } = {
-      '01d': '☀️', // clear sky day
-      '01n': '🌙', // clear sky night
-      '02d': '⛅', // few clouds day
-      '02n': '☁️', // few clouds night
-      '03d': '☁️', // scattered clouds
-      '03n': '☁️',
-      '04d': '☁️', // broken clouds
-      '04n': '☁️',
-      '09d': '🌦️', // shower rain
-      '09n': '🌦️',
-      '10d': '🌧️', // rain day
-      '10n': '🌧️', // rain night
-      '11d': '⛈️', // thunderstorm
-      '11n': '⛈️',
-      '13d': '🌨️', // snow
-      '13n': '🌨️',
-      '50d': '�️', // mist
-      '50n': '🌫️'
-    }
-    
-    return iconMap[iconCode] || '🌤️'
-  }
-
   const getWeatherIconFromCondition = (weatherCode: string): string => {
     // wttr.in weather codes
     const code = parseInt(weatherCode)
@@ -321,16 +314,36 @@ const DigitalClock: React.FC = () => {
     return conditionMap[wmoCode] || 'Unknown'
   }
 
+  const displayTime = { ...time, ...formatClockHours(Number(time.hours24), timeFormat) }
+
+  if (variant === 'retro') {
+    return <RetroClockFace time={displayTime} systemData={systemData} />
+  }
+  if (variant === 'neon') {
+    return <NeonClockFace time={displayTime} />
+  }
+  if (variant === 'orbit') {
+    return <OrbitDigitalFace time={time} timeFormat={timeFormat} />
+  }
+  if (variant === 'teal') {
+    return <TealAnalogFace time={time} timeFormat={timeFormat} />
+  }
+
   return (
     <div className="digital-clock-page">
       <div className="digital-container">
         {/* Digital Display */}
         <div className="digital-display">
-          <div className="time-display">
-            <span className="hours">{time.hours}</span>
+          <div
+            className="time-display"
+            role="timer"
+            aria-live="off"
+            aria-label={`${displayTime.hours}:${time.minutes}${displayTime.ampm ? ` ${displayTime.ampm}` : ''}`}
+          >
+            <span className="hours">{displayTime.hours}</span>
             <span className="separator">:</span>
             <span className="minutes">{time.minutes}</span>
-            <span className="ampm">{time.ampm}</span>
+            {displayTime.ampm && <span className="ampm">{displayTime.ampm}</span>}
           </div>
           <div className="date-display">
             <div className="day">{time.day}</div>
@@ -356,6 +369,22 @@ const DigitalClock: React.FC = () => {
       </div>
     </div>
   )
+}
+
+export function RetroClock(props: ClockFaceProps) {
+  return <DigitalClock {...props} variant="retro" />
+}
+
+export function NeonClock(props: ClockFaceProps) {
+  return <DigitalClock {...props} variant="neon" />
+}
+
+export function OrbitDigitalClock(props: ClockFaceProps) {
+  return <DigitalClock {...props} variant="orbit" />
+}
+
+export function TealAnalogClock(props: ClockFaceProps) {
+  return <DigitalClock {...props} variant="teal" />
 }
 
 export default DigitalClock

@@ -1,41 +1,38 @@
 #!/bin/bash
+set -Eeuo pipefail
 
-# Raspberry Pi Clock Kiosk Mode Launcher
-# This script launches the clock app in full-screen kiosk mode
+trap 'printf "Clock kiosk failed at line %s.\n" "$LINENO" >&2' ERR
 
-echo "Starting Raspberry Pi Modern Clock in kiosk mode..."
+: "${DISPLAY:?A graphical session is required to launch the kiosk}"
 
-# Kill any existing chromium processes
-pkill chromium
+deadline=$((SECONDS + 60))
+for url in http://127.0.0.1:5173/ http://127.0.0.1:3001/; do
+    printf 'Waiting for %s\n' "$url"
+    until curl --fail --silent --show-error --connect-timeout 1 --max-time 2 "$url" >/dev/null; do
+        if (( SECONDS >= deadline )); then
+            printf 'Timed out waiting for %s. Check the rpiclock services.\n' "$url" >&2
+            exit 1
+        fi
+        sleep 1
+    done
+done
 
-# Kill any existing unclutter process and start fresh
-pkill unclutter 2>/dev/null
+xset s off
+xset s noblank
+if ! xset -dpms; then
+    printf 'Warning: the X server does not support disabling DPMS.\n' >&2
+fi
 
-# Wait a moment
-sleep 2
-
-# Hide cursor using unclutter (hides cursor after 0.1 seconds of inactivity)
-# Install with: sudo apt install unclutter
+# systemd owns the cursor helper and browser in the same service cgroup.
 unclutter -idle 0.1 -root &
-
-# Move cursor off screen as additional measure
-xdotool mousemove 9999 9999
-
-# Launch Chromium in kiosk mode (with cursor hidden inside browser)
-chromium-browser \
-  --kiosk \
-  --disable-infobars \
-  --disable-session-crashed-bubble \
-  --disable-translate \
-  --no-first-run \
-  --disable-features=TranslateUI \
-  --disable-ipc-flooding-protection \
-  --enable-features=OverlayScrollbar \
-  --start-fullscreen \
-  --window-size=800,480 \
-  --window-position=0,0 \
-  --disable-dev-shm-usage \
-  --no-sandbox \
-  http://localhost:5173
-
-echo "Clock app launched in kiosk mode"
+exec /usr/bin/chromium \
+    --ozone-platform=x11 \
+    --user-data-dir="$HOME/.local/share/rpiclock/chromium" \
+    --kiosk \
+    --no-first-run \
+    --no-default-browser-check \
+    --disable-session-crashed-bubble \
+    --force-device-scale-factor=1 \
+    --window-size=800,480 \
+    --window-position=0,0 \
+    http://127.0.0.1:5173/
