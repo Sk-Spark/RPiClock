@@ -119,6 +119,56 @@ test('selects bookmarked faces while retaining the original default and correct 
   }
 })
 
+test('restores a saved face on startup while explicit links can select any other face', t => {
+  const previousWindow = Object.getOwnPropertyDescriptor(globalThis, 'window')
+  Object.defineProperty(globalThis, 'window', {
+    configurable: true,
+    value: {
+      localStorage: {
+        getItem: key => key === 'rpiclock-clock-face' ? 'teal-analog' : '12'
+      }
+    }
+  })
+  t.after(() => {
+    if (previousWindow) Object.defineProperty(globalThis, 'window', previousWindow)
+    else delete globalThis.window
+  })
+  for (const [url, expectedFace] of [
+    ['/', 'teal-analog'],
+    ['/?face=neon-red', 'neon-red'],
+    ['/?face=digital', 'digital']
+  ]) {
+    const markup = renderToStaticMarkup(createElement(MemoryRouter, { initialEntries: [url] }, createElement(App)))
+    assert.match(markup, new RegExp(`data-face="${expectedFace}"`))
+  }
+})
+
+test('invalid or unreadable saved faces are reported and fall back to a working default', t => {
+  const previousWindow = Object.getOwnPropertyDescriptor(globalThis, 'window')
+  const warnings = t.mock.method(console, 'warn', () => {})
+  const errors = t.mock.method(console, 'error', () => {})
+  t.after(() => {
+    if (previousWindow) Object.defineProperty(globalThis, 'window', previousWindow)
+    else delete globalThis.window
+  })
+  for (const getItem of [
+    key => key === 'rpiclock-clock-face' ? 'removed-face' : null,
+    key => {
+      if (key === 'rpiclock-clock-face') throw new Error('Storage unavailable')
+      return null
+    }
+  ]) {
+    Object.defineProperty(globalThis, 'window', {
+      configurable: true, value: { localStorage: { getItem } }
+    })
+    const markup = renderToStaticMarkup(createElement(MemoryRouter, { initialEntries: ['/'] }, createElement(App)))
+    assert.match(markup, /data-face="digital"/)
+    assert.match(markup, /role="alert"/)
+  }
+  assert.equal(warnings.mock.callCount(), 1)
+  assert.equal(errors.mock.callCount(), 1)
+})
+
 test('renders the minimal neon face in 24-hour format without AM/PM or system widgets', () => {
   const markup = renderToStaticMarkup(createElement(NeonClockFace, {
     time: { hours: '23', minutes: '42', ampm: '', shortDate: 'Fri 13 Nov' }

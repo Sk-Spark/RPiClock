@@ -16,6 +16,7 @@ interface PageConfig {
 }
 
 const timeFormatStorageKey = 'rpiclock-time-format'
+const faceStorageKey = 'rpiclock-clock-face'
 
 interface ClockSettingsState {
   timeFormat: TimeFormat
@@ -50,8 +51,25 @@ const pages: PageConfig[] = [
   // { id: 'world', name: 'World Clock', component: WorldClock },
 ]
 
+function readSavedFace() {
+  if (typeof window === 'undefined') return { id: 'digital', storageError: null }
+  try {
+    const stored = window.localStorage.getItem(faceStorageKey)
+    if (stored === null || pages.some(page => page.id === stored)) {
+      return { id: stored ?? 'digital', storageError: null }
+    }
+    console.warn('Invalid saved clock face:', stored)
+    return { id: 'digital', storageError: 'The saved clock face was invalid. Select a face again.' }
+  } catch (error) {
+    console.error('Failed to read the saved clock face:', error)
+    return { id: 'digital', storageError: 'The saved clock face could not be read. It may not be restored after restart.' }
+  }
+}
+
 function App() {
   const [clockSettings, setClockSettings] = useState(readClockSettings)
+  const [initialFace] = useState(readSavedFace)
+  const [faceStorageError, setFaceStorageError] = useState<string | null>(initialFace.storageError)
   const [controlsVisible, setControlsVisible] = useState(true)
   const [interactionVersion, setInteractionVersion] = useState(0)
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -59,13 +77,24 @@ function App() {
   const lastRotationDay = useRef(getLocalDayKey(new Date()))
   const [searchParams, setSearchParams] = useSearchParams()
   const face = searchParams.get('face')
-  const requestedIndex = face === null ? 0 : pages.findIndex(page => page.id === face)
+  const requestedIndex = pages.findIndex(page => page.id === (face ?? initialFace.id))
   if (requestedIndex < 0) console.warn('Unknown clock face requested:', face)
   const currentPageIndex = Math.max(0, requestedIndex)
   
   const currentPage = pages[currentPageIndex]
   const previousPageIndex = (currentPageIndex + pages.length - 1) % pages.length
   const nextPageIndex = (currentPageIndex + 1) % pages.length
+
+  useEffect(() => {
+    if (document.visibilityState !== 'visible') return
+    try {
+      window.localStorage.setItem(faceStorageKey, currentPage.id)
+      setFaceStorageError(null)
+    } catch (error) {
+      console.error('Failed to save the active clock face:', error)
+      setFaceStorageError('The active face could not be saved. It may reset after restart.')
+    }
+  }, [currentPage.id])
 
   useEffect(() => {
     const syncSettings = (event: StorageEvent) => {
@@ -113,8 +142,7 @@ function App() {
   const selectPage = useCallback((index: number, replace = false) => {
     setSearchParams(previous => {
       const next = new URLSearchParams(previous)
-      if (index === 0) next.delete('face')
-      else next.set('face', pages[index].id)
+      next.set('face', pages[index].id)
       return next
     }, { replace })
   }, [setSearchParams])
@@ -191,7 +219,7 @@ function App() {
           <ClockSettings
             timeFormat={clockSettings.timeFormat}
             onTimeFormatChange={changeTimeFormat}
-            storageError={clockSettings.storageError}
+            storageError={[clockSettings.storageError, faceStorageError].filter(Boolean).join(' ') || null}
             onOpenChange={handleSettingsOpenChange}
           />
         </div>

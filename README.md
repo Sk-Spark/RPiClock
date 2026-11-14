@@ -81,13 +81,25 @@ adds `scrot` and `x11-utils` for checking the actual LCD output, and an emoji fo
 for the existing weather icons.
 
 LightDM automatically logs in `spark` locally to the dedicated RPiClock/Openbox
-session. This does not change SSH authentication. The default page is the digital
-clock, with Analog, Retro LCD, Neon Red, Orbit Digital, and Teal Analog faces available through visible previous/next
+session. This does not change SSH authentication. The last active face is restored
+on startup; Digital Clock is used when no face has been saved. Analog, Retro LCD,
+Neon Red, Orbit Digital, and Teal Analog are available through visible previous/next
 buttons in the top corners. They support touch and keyboard activation.
 Navigation and the settings gear hide after 60 seconds without interaction.
 Touch or click anywhere to reveal them; the first touch only reveals controls,
 without accidentally selecting a face. The timeout pauses while settings are open.
 Chromium renders fullscreen at the attached display's native `800x480` mode.
+
+### Remembering the active face
+
+The current face is saved automatically in this browser profile, including
+manual navigation and midnight rotation. The kiosk's normal startup URL restores
+that face after a browser restart or Pi reboot without changing the launcher.
+An explicit `?face=...` link overrides the remembered face and becomes the new
+saved selection. Use `?face=digital` to explicitly choose Digital Clock.
+Storage failures are logged and shown in settings; invalid or removed saved faces
+fall back to Digital Clock. Preferences are independent for different browsers
+and devices, just like the time-format setting.
 
 ### Daily midnight face rotation
 
@@ -126,8 +138,8 @@ or an external font.
 Cycle through Digital Clock, Analog Clock, Retro LCD, Neon Red, Orbit Digital, and Teal Analog using the previous/next
 buttons. Navigation updates the URL, so refresh and browser Back retain the
 correct face. To open Retro LCD directly, use
-`http://localhost:5173/?face=retro-lcd`; a URL without `face` keeps the original
-digital face as the default. Run the focused rendering checks with
+`http://localhost:5173/?face=retro-lcd`; a URL without `face` restores the saved
+face, or Digital Clock when none is saved. Run the focused rendering checks with
 `npm run test:faces`.
 
 ### Analog face clarity
