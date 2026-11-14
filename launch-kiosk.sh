@@ -35,4 +35,4 @@ exec /usr/bin/chromium \
     --force-device-scale-factor=1 \
     --window-size=800,480 \
     --window-position=0,0 \
-    http://127.0.0.1:5173/
+    'http://127.0.0.1:5173/?display=1'

@@ -1,0 +1,46 @@
+.amber-matrix-face {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(24px, 7.5vh, 48px);
+  padding: 20px;
+  overflow: hidden;
+  background-color: #010203;
+  background-image: radial-gradient(circle, #111315 0 3.4px, transparent 3.6px);
+  background-size: 17px 17px;
+}
+
+.matrix-time {
+  display: block;
+  width: min(65vw, 600px);
+  height: auto;
+  overflow: visible;
+}
+
+.matrix-info {
+  display: block;
+  width: min(82vw, 680px);
+  height: auto;
+  overflow: visible;
+}
+
+.matrix-text {
+  filter: drop-shadow(0 0 3px rgba(255, 144, 0, 0.75));
+}
+
+.matrix-led {
+  fill: #ffae00;
+}
+
+.matrix-led-core {
+  fill: #ffe58b;
+}
+
+.app[data-face="amber-matrix"] .face-navigation-button {
+  border-color: #70501f;
+  background: #0c0b08;
+  color: #ffbf56;
+}

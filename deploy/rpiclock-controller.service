@@ -1,0 +1,14 @@
+[Unit]
+Description=RPiClock local face-control relay
+
+[Service]
+Type=exec
+WorkingDirectory=/home/spark/RPiClock/app
+ExecStart=/usr/bin/node /home/spark/RPiClock/app/scripts/controller-server.js
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target

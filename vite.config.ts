@@ -4,6 +4,7 @@ import fs from 'fs'
 import path from 'path'
 import os from 'os'
 import { fileURLToPath } from 'url'
+import { createSystemMetricsReader } from './scripts/system-metrics'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const IMAGES_DIR = path.join(__dirname, 'src', 'assets', 'images')
@@ -63,9 +64,43 @@ function getImages() {
 export default defineConfig({
   server: {
     allowedHosts: ['rpiclock.local', 'localhost', '127.0.0.1'],
+    proxy: {
+      '/api/controller': {
+        target: 'http://127.0.0.1:3003',
+        changeOrigin: true,
+        headers: { 'X-RPiClock-Controller': '1' }
+      },
+      '/api/display': {
+        target: 'http://127.0.0.1:3003',
+        changeOrigin: true
+      }
+    },
   },
   plugins: [
     react(),
+    {
+      name: 'system-metrics',
+      configureServer(server) {
+        const readMetrics = createSystemMetricsReader()
+        server.middlewares.use('/api/system', async (req, res) => {
+          res.setHeader('Content-Type', 'application/json')
+          res.setHeader('Cache-Control', 'no-store')
+          if (req.method !== 'GET' || !['', '/'].includes(req.url || '')) {
+            console.warn('Invalid system metrics request:', req.method)
+            res.statusCode = req.method === 'GET' ? 404 : 405
+            res.end(JSON.stringify({ error: 'Invalid system metrics request' }))
+            return
+          }
+          try {
+            res.end(JSON.stringify(await readMetrics()))
+          } catch (error) {
+            console.error('System metrics unavailable:', error)
+            res.statusCode = 503
+            res.end(JSON.stringify({ error: 'System metrics unavailable' }))
+          }
+        })
+      }
+    },
     {
       name: 'image-api',
       configureServer(server) {

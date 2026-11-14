@@ -156,6 +156,8 @@
   line-height: 1.5;
 }
 
+.clock-settings-description a { color: #a7bcff; }
+
 .clock-settings-description {
   color: #b9c1d4;
 }

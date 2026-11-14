@@ -83,12 +83,55 @@ for the existing weather icons.
 LightDM automatically logs in `spark` locally to the dedicated RPiClock/Openbox
 session. This does not change SSH authentication. The last active face is restored
 on startup; Digital Clock is used when no face has been saved. Analog, Retro LCD,
-Neon Red, Orbit Digital, and Teal Analog are available through visible previous/next
+Neon Red, Orbit Digital, Teal Analog, Flip Clock, Nixie Clock, Zen Paper, Amber Matrix,
+Cosmic Orbits, Terminal Green, and Pixel Landscape are available through visible previous/next
 buttons in the top corners. They support touch and keyboard activation.
 Navigation and the settings gear hide after 60 seconds without interaction.
 Touch or click anywhere to reveal them; the first touch only reveals controls,
 without accidentally selecting a face. The timeout pauses while settings are open.
 Chromium renders fullscreen at the attached display's native `800x480` mode.
+
+### Web controller
+
+After running `bash deploy/install-kiosk.sh`, open
+`http://127.0.0.1:5173/controller` on the existing clock server. The page is simply
+a button for each face. No login or pairing step is required.
+
+The page distinguishes the requested face from the face acknowledged by the
+LCD and reports when the display is offline. Commands normally apply within
+about two seconds. Local navigation and midnight rotation also update controller
+status. The selected face persists outside the checkout in
+`~/.local/share/rpiclock/controller/controller.json` with private permissions.
+
+The existing server proxies commands to a small loopback-only relay; it has no
+separate controller port to open. For a mobile browser on the same trusted Wi-Fi,
+open `http://rpiclock.local:5173/controller` or use the Pi's current IP instead
+of `rpiclock.local`. `http://rpiclock.local:1573/controller` is also supported
+as a controller-only alias. Both addresses control the same LCD.
+The user service serves only the controller and its built
+assets on the LAN address, on the same port 5173; it does not expose the Vite
+development server, admin/image APIs, or local display endpoint.
+The LAN controller intentionally has no login, so anyone on that network can
+switch faces. Do not forward this port to the internet.
+Alternatively, from another computer, forward the existing local web port:
+`ssh -L 5173:127.0.0.1:5173 spark@rpiclock.local`, then open
+`http://localhost:5173/controller`. Untrusted origins and invalid commands are
+rejected. Do not expose the development/admin server to the internet.
+
+The boot launcher marks the physical kiosk with `?display=1`; ordinary face
+previews do not take control of the LCD. Hidden kiosk tabs pause synchronization
+and reconcile the latest selection when visible again, so they cannot overwrite
+the active display's face. Test the API with `npm run test:controller`
+and inspect `journalctl --user -u rpiclock-controller -b` for failures.
+The controller is a user service started with the clock session. For an already
+restored Pi, install it without sudo using:
+
+```bash
+install -m 644 deploy/rpiclock-controller.service ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now rpiclock-controller
+systemctl --user restart rpiclock-kiosk
+```
 
 ### Remembering the active face
 
@@ -104,7 +147,7 @@ and devices, just like the time-format setting.
 ### Daily midnight face rotation
 
 While the clock app is running, it advances to the next face at midnight in the
-browser's local timezone (the Pi uses Asia/Kolkata). Teal Analog wraps back to
+browser's local timezone (the Pi uses Asia/Kolkata). Pixel Landscape wraps back to
 Digital Clock. Each new calendar day rotates once; visibility/page restoration
 checks catch a midnight missed while the running tab was paused.
 
@@ -135,7 +178,7 @@ It shares the original digital clock's time and system-data updates, rather than
 duplicating API polling. Digits and weather symbols are SVG, not a static image
 or an external font.
 
-Cycle through Digital Clock, Analog Clock, Retro LCD, Neon Red, Orbit Digital, and Teal Analog using the previous/next
+Cycle through all available clock faces using the previous/next
 buttons. Navigation updates the URL, so refresh and browser Back retain the
 correct face. To open Retro LCD directly, use
 `http://localhost:5173/?face=retro-lcd`; a URL without `face` restores the saved
@@ -178,6 +221,78 @@ date, with cards for ISO week, local day-of-year, and real UTC time.
 Both local and UTC readouts follow the shared 12/24-hour setting; the hands
 retain the conventional 12-hour dial. Calendar values handle leap years and ISO
 week-year boundaries. The face shares the clock ticker and needs no extra APIs.
+
+### Flip Clock face
+
+Open `http://localhost:5173/?face=flip-clock`, or select Flip Clock with the
+navigation buttons. Four large split-flap cards display hours/minutes, with a
+smaller pair for live seconds. Only changed digits animate,
+with an orange colon, compact weekday/date, and local day-progress bar.
+During each flip, the old lower digit is retained for the upper flap's full
+300 ms drop; only then does the lower flap reveal the new digit.
+The saved 12/24-hour format applies, and reduced-motion preferences disable the
+flip animation. Outdoor temperature is the current local weather-service reading,
+not a daily forecast high or an indoor sensor. CPU temperature uses the Pi sensor.
+Muted SVG weather and chip icons replace the text labels; the temperature groups
+retain accessible Outdoor/CPU names for screen readers.
+Both share the existing digital clock polling; CPU updates are displayed without
+waiting for the weather response. Unavailable readings show `--°C`, not invented
+temperatures. Face memory, auto-hide controls, and midnight rotation remain active.
+
+### Nixie Clock face
+
+Open `http://localhost:5173/?face=nixie-clock`, or select Nixie Clock with the
+navigation buttons. The supplied photographic artwork is used as the background;
+its fixed digits and date were removed so live amber SVG numerals and date text
+can be overlaid in the tubes and brass plate. The photo and overlays scale
+together without cropping the clock. It follows the shared
+12/24-hour format, remembers the selected face, and joins midnight rotation.
+It reuses the existing ticker without weather or CPU polling. The numeral paths
+are shared with Neon Red; all earlier faces remain available.
+
+### Zen Paper face
+
+Open `http://localhost:5173/?face=zen-paper`, or select Zen Paper in the controller
+or local navigation. The supplied parchment/bamboo/enso artwork has its printed
+time/date removed and replaced with live serif time and date text.
+The background covers the entire viewport with no letterboxing; artwork and
+overlays scale together, with edge cropping where screen proportions differ.
+The shared 12/24-hour preference, face memory, and midnight rotation apply.
+It shares the ticker and makes no weather or CPU requests.
+
+### Amber Matrix face
+
+Open `http://localhost:5173/?face=amber-matrix`, or select Amber Matrix in the
+controller. Warm SVG LED dots display live time, a compact date, and the current
+outdoor weather temperature over a full-screen dark dot grid.
+The glyphs are drawn as dots, not an image or a downloaded font. Negative and
+decimal temperatures and unavailable readings (`--°C`) are supported.
+Shared time-format settings, face memory, local controls, and midnight rotation
+apply; existing digital-clock data polling supplies the weather.
+
+### Designs from ClockFacesImplement
+
+All three supplied designs are available in the controller and local navigation:
+
+| Reference | Face | Features |
+| --- | --- | --- |
+| `image.png` | Cosmic Orbits (`cosmic-orbits`) | Starfield, live hour/minute/second rings, ISO week, day-of-year |
+| `image1.png` | Terminal Green (`terminal-green`) | Pixel time/seconds/date, day progress, live CPU load/temperature, uptime, Wi-Fi bars |
+| `image2.png` | Pixel Landscape (`pixel-landscape`) | Preserved pixel scenery with live block-font time and date |
+
+Cosmic Orbits uses enlarged, medium-weight central time and brighter date/period
+text for readability on the LCD.
+
+The terminal reads `/api/system` on the existing local web server. CPU load is
+calculated from OS tick deltas; uptime and temperature come from the Pi.
+Wi-Fi bars use `/proc/net/wireless` link quality normalized against the Pi's
+70-point scale. Missing metrics are shown as unavailable, not sample values.
+The system endpoint is not exposed by the mobile controller.
+
+Pixel Landscape fills the viewport, cropping artwork edges when needed, and
+uses a local background with its original fixed text removed. All three faces
+share the clock ticker, saved 12/24-hour preference, face memory, controller, and
+midnight rotation. Existing faces remain available.
 
 The web/image APIs listen on `127.0.0.1:5173`; the CPU-temperature API listens on
 `127.0.0.1:3001`. For remote admin access, forward the web port through SSH

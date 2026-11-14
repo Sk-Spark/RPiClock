@@ -16,6 +16,14 @@ let RetroClockFace
 let NeonClockFace
 let OrbitDigitalFace
 let TealAnalogFace
+let FlipClockFace
+let NixieClockFace
+let ZenPaperFace
+let AmberMatrixFace
+let CosmicOrbitsFace
+let TerminalGreenFace
+let PixelLandscapeFace
+let createSystemMetricsReader
 let App
 let formatClockHours
 let getDayOfYear
@@ -36,6 +44,14 @@ before(async () => {
   NeonClockFace = (await vite.ssrLoadModule('/src/components/NeonClockFace.tsx')).default
   OrbitDigitalFace = (await vite.ssrLoadModule('/src/components/OrbitDigitalFace.tsx')).default
   TealAnalogFace = (await vite.ssrLoadModule('/src/components/TealAnalogFace.tsx')).default
+  FlipClockFace = (await vite.ssrLoadModule('/src/components/FlipClockFace.tsx')).default
+  NixieClockFace = (await vite.ssrLoadModule('/src/components/NixieClockFace.tsx')).default
+  ZenPaperFace = (await vite.ssrLoadModule('/src/components/ZenPaperFace.tsx')).default
+  AmberMatrixFace = (await vite.ssrLoadModule('/src/components/AmberMatrixFace.tsx')).default
+  CosmicOrbitsFace = (await vite.ssrLoadModule('/src/components/CosmicOrbitsFace.tsx')).default
+  TerminalGreenFace = (await vite.ssrLoadModule('/src/components/TerminalGreenFace.tsx')).default
+  PixelLandscapeFace = (await vite.ssrLoadModule('/src/components/PixelLandscapeFace.tsx')).default
+  createSystemMetricsReader = (await vite.ssrLoadModule('/scripts/system-metrics.ts')).createSystemMetricsReader
   App = (await vite.ssrLoadModule('/src/App.tsx')).default
   formatClockHours = (await vite.ssrLoadModule('/src/utils/timeFormat.ts')).formatClockHours
   getDayOfYear = (await vite.ssrLoadModule('/src/utils/calendar.ts')).getDayOfYear
@@ -94,6 +110,13 @@ test('selects bookmarked faces while retaining the original default and correct 
     ['/?face=neon-red', 'neon-clock-face'],
     ['/?face=orbit-digital', 'orbit-digital-face'],
     ['/?face=teal-analog', 'teal-analog-face'],
+    ['/?face=flip-clock', 'flip-clock-face'],
+    ['/?face=nixie-clock', 'nixie-clock-face'],
+    ['/?face=zen-paper', 'zen-paper-face'],
+    ['/?face=amber-matrix', 'amber-matrix-face'],
+    ['/?face=cosmic-orbits', 'cosmic-orbits-face'],
+    ['/?face=terminal-green', 'terminal-green-face'],
+    ['/?face=pixel-landscape', 'pixel-landscape-face'],
     ['/?face=unknown', 'digital-clock-page']
   ]) {
     const markup = renderToStaticMarkup(createElement(MemoryRouter, { initialEntries: [url] }, createElement(App)))
@@ -114,9 +137,191 @@ test('selects bookmarked faces while retaining the original default and correct 
     }
     if (url.includes('teal-analog')) {
       assert.match(markup, /aria-label="Previous face: Orbit Digital"/)
+      assert.match(markup, /aria-label="Next face: Flip Clock"/)
+    }
+    if (url.includes('flip-clock')) {
+      assert.match(markup, /aria-label="Previous face: Teal Analog"/)
+      assert.match(markup, /aria-label="Next face: Nixie Clock"/)
+    }
+    if (url.includes('nixie-clock')) {
+      assert.match(markup, /aria-label="Previous face: Flip Clock"/)
+      assert.match(markup, /aria-label="Next face: Zen Paper"/)
+    }
+    if (url.includes('zen-paper')) {
+      assert.match(markup, /aria-label="Previous face: Nixie Clock"/)
+      assert.match(markup, /aria-label="Next face: Amber Matrix"/)
+    }
+    if (url.includes('amber-matrix')) {
+      assert.match(markup, /aria-label="Previous face: Zen Paper"/)
+      assert.match(markup, /aria-label="Next face: Cosmic Orbits"/)
+    }
+    if (url.includes('pixel-landscape')) {
+      assert.match(markup, /aria-label="Previous face: Terminal Green"/)
       assert.match(markup, /aria-label="Next face: Digital Clock"/)
     }
   }
+})
+
+test('flip face renders hours, minutes, smaller seconds, both temperatures, and actual local day progress', () => {
+  const markup = renderToStaticMarkup(createElement(FlipClockFace, {
+    time: {
+      timestamp: new Date(2026, 10, 14, 17, 14).getTime(),
+      hours: '05', hours24: '17', minutes: '14', seconds: '00', ampm: 'PM', day: 'Saturday'
+    },
+    systemData: {
+      cpuTemp: '53°C',
+      weather: { temp: '26°C', condition: 'Overcast', icon: '' }
+    }
+  }))
+  assert.match(markup, /aria-label="05:14:00 PM"/)
+  assert.equal((markup.match(/class="flip-digit"/g) || []).length, 6)
+  assert.match(markup, /class="flip-seconds"/)
+  assert.match(markup, /Saturday/)
+  assert.match(markup, /14 Nov/)
+  assert.match(markup, /aria-label="Outdoor temperature"/)
+  assert.match(markup, /26°C/)
+  assert.match(markup, /Overcast/)
+  assert.match(markup, /aria-label="CPU temperature"/)
+  assert.match(markup, /53°C/)
+  assert.equal((markup.match(/class="flip-temperature-icon"/g) || []).length, 2)
+  assert.doesNotMatch(markup, />Outdoor<|>CPU</)
+  const progress = Number(markup.match(/<progress[^>]*value="([^"]+)"/)[1])
+  assert.ok(Math.abs(progress - (17 * 60 + 14) / 1440 * 100) < 0.001)
+})
+
+test('flip face keeps unavailable sensor and weather readings honest at midnight', () => {
+  const markup = renderToStaticMarkup(createElement(FlipClockFace, {
+    time: {
+      timestamp: new Date(2026, 0, 1).getTime(),
+      hours: '00', hours24: '00', minutes: '00', seconds: '00', ampm: '', day: 'Thursday'
+    },
+    systemData: {
+      cpuTemp: '--°C',
+      weather: { temp: '--°C', condition: 'Service unavailable', icon: '' }
+    }
+  }))
+  assert.match(markup, /aria-label="00:00:00"/)
+  assert.equal((markup.match(/--°C/g) || []).length, 2)
+  assert.match(markup, /Service unavailable/)
+  assert.match(markup, /value="0" max="100"/)
+  assert.doesNotMatch(markup, /class="flip-ampm"/)
+})
+
+test('nixie face renders the selected time in four tubes with a live brass-plate date', () => {
+  for (const [hour, format, label] of [[0, '24', '00:14'], [17, '12', '05:14 PM']]) {
+    const formatted = formatClockHours(hour, format)
+    const markup = renderToStaticMarkup(createElement(NixieClockFace, {
+      time: { ...formatted, minutes: '14', day: 'Saturday', shortDate: 'Sat 14 Nov' }
+    }))
+    assert.match(markup, new RegExp(`aria-label="${label}"`))
+    assert.deepEqual([...markup.matchAll(/data-digit="(\d)"/g)].map(match => match[1]), `${formatted.hours}14`.split(''))
+    assert.match(markup, /Saturday 14 Nov/)
+    assert.match(markup, /class="nixie-photo" src="\/nixie-background.png" alt=""/)
+    assert.equal((markup.match(/class="nixie-digit-core"/g) || []).length, 4)
+    if (format === '24') assert.doesNotMatch(markup, /class="nixie-period"/)
+    else assert.match(markup, /class="nixie-period"[^>]*>PM</)
+  }
+})
+
+test('Zen Paper overlays live selected-format time and date rather than the image reference time', () => {
+  for (const [format, label] of [['12', '05:42 PM'], ['24', '17:42']]) {
+    const markup = renderToStaticMarkup(createElement(ZenPaperFace, {
+      time: {
+        ...formatClockHours(17, format),
+        timestamp: new Date(2026, 10, 14, 17, 42).getTime(),
+        minutes: '42', day: 'Saturday'
+      }
+    }))
+    assert.match(markup, new RegExp(`aria-label="${label}"`))
+    assert.match(markup, /src="\/zen-background.png"/)
+    assert.match(markup, /Saturday · 14 November/)
+    assert.doesNotMatch(markup, /10:14|Friday/)
+    if (format === '24') assert.doesNotMatch(markup, /class="zen-paper-period"/)
+  }
+})
+
+test('Amber Matrix renders LED time, date, and measured weather temperature in both formats', () => {
+  for (const [format, label] of [['12', '05:42 PM'], ['24', '17:42']]) {
+    const markup = renderToStaticMarkup(createElement(AmberMatrixFace, {
+      time: { ...formatClockHours(17, format), minutes: '42', shortDate: 'Sat 14 Nov' },
+      systemData: { weather: { temp: '-14.5°C', condition: 'Snow', icon: '' } }
+    }))
+    assert.match(markup, new RegExp(`aria-label="${label}"`))
+    assert.match(markup, /aria-label="Sat 14 Nov, outdoor temperature -14.5°C"/)
+    assert.match(markup, /class="matrix-led"/)
+    assert.match(markup, /data-character="°"/)
+    assert.doesNotMatch(markup, /<img/)
+  }
+})
+
+test('Amber Matrix shows missing weather as dashes instead of the reference temperature', () => {
+  const markup = renderToStaticMarkup(createElement(AmberMatrixFace, {
+    time: { hours: '00', minutes: '00', ampm: '', shortDate: 'Thu 01 Jan' },
+    systemData: { weather: { temp: '--°C', condition: 'Service unavailable', icon: '' } }
+  }))
+  assert.match(markup, /aria-label="00:00"/)
+  assert.match(markup, /outdoor temperature --°C/)
+  assert.doesNotMatch(markup, /14°C/)
+})
+
+test('Cosmic Orbits derives every ring angle and calendar value from the live timestamp', () => {
+  const markup = renderToStaticMarkup(createElement(CosmicOrbitsFace, {
+    time: {
+      timestamp: new Date(2026, 10, 13, 10, 14, 43).getTime(),
+      hours: '10', minutes: '14', ampm: '', shortDate: 'Fri 13 Nov'
+    }
+  }))
+  assert.match(markup, /Hours ring at 307.0 degrees/)
+  assert.match(markup, /Minutes ring at 88.3 degrees/)
+  assert.match(markup, /Seconds ring at 258.0 degrees/)
+  assert.match(markup, /Week 46/)
+  assert.match(markup, /Day 317/)
+})
+
+test('folder pixel faces render selected-format time without fabricated terminal metrics', () => {
+  const time = {
+    timestamp: new Date(2026, 10, 14, 17, 42, 8).getTime(),
+    hours: '05', hours24: '17', minutes: '42', seconds: '08', ampm: 'PM', shortDate: 'Sat 14 Nov'
+  }
+  const terminal = renderToStaticMarkup(createElement(TerminalGreenFace, { time }))
+  assert.match(terminal, /aria-label="05:42:08 PM"/)
+  assert.match(terminal, /CONNECTING/)
+  assert.match(terminal, /--°C/)
+  assert.doesNotMatch(terminal, /12d 4h|48°C/)
+  const landscape = renderToStaticMarkup(createElement(PixelLandscapeFace, { time }))
+  assert.match(landscape, /aria-label="05:42 PM"/)
+  assert.match(landscape, /src="\/pixel-landscape.png"/)
+  assert.match(landscape, /data-character="S"/)
+})
+
+test('terminal metrics use CPU tick deltas, real uptime and measured Wi-Fi quality', async () => {
+  let calls = 0
+  const read = createSystemMetricsReader({
+    readTemperature: async () => '48500',
+    readWireless: async () => 'wlan0: 0000 35. -65. -256 0',
+    cpuTicks: () => calls++ === 0 ? { idle: 100, total: 200 } : { idle: 150, total: 300 },
+    uptime: () => 125040
+  })
+  const metrics = await read()
+  assert.deepEqual(metrics, { temperature: 49, cpuUsage: 50, uptime: 125040, wifiQuality: 50 })
+})
+
+test('terminal metrics do not invent CPU load or Wi-Fi bars when no samples are available', async () => {
+  const read = createSystemMetricsReader({
+    readTemperature: async () => '50000',
+    readWireless: async () => 'Inter-| sta-| Quality',
+    cpuTicks: () => ({ idle: 100, total: 200 }),
+    uptime: () => 60
+  })
+  const metrics = await read()
+  assert.equal(metrics.cpuUsage, null)
+  assert.equal(metrics.wifiQuality, null)
+  const invalid = createSystemMetricsReader({
+    readTemperature: async () => '',
+    readWireless: async () => '',
+    uptime: () => 60
+  })
+  await assert.rejects(invalid(), /Invalid CPU temperature/)
 })
 
 test('restores a saved face on startup while explicit links can select any other face', t => {

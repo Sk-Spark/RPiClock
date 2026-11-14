@@ -1,0 +1,314 @@
+.flip-clock-face {
+  --flip-card-height: min(35vh, 21vw, 190px);
+  --flip-accent: #ff802f;
+  width: 100vw;
+  height: 100vh;
+  padding: 64px 24px 20px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: #f3f0e9;
+  background: radial-gradient(ellipse at top, #13161c, #080a0d 70%);
+  font-family: 'Inter', 'Segoe UI', 'DejaVu Sans', sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.flip-clock-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(20px, 5vh, 30px);
+  max-width: 100%;
+}
+
+.flip-time-row,
+.flip-time,
+.flip-digit-pair {
+  display: flex;
+  align-items: center;
+}
+
+.flip-time-row {
+  gap: 12px;
+}
+
+.flip-time {
+  gap: clamp(12px, 2.5vw, 24px);
+}
+
+.flip-digit-pair {
+  gap: clamp(8px, 1.4vw, 14px);
+}
+
+.flip-digit {
+  position: relative;
+  width: calc(var(--flip-card-height) * 0.65);
+  height: var(--flip-card-height);
+  border-radius: 12px;
+  background: #202328;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6);
+  perspective: 700px;
+  font-size: calc(var(--flip-card-height) * 0.82);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.flip-digit-half {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  overflow: hidden;
+  backface-visibility: hidden;
+}
+
+.flip-digit-half span {
+  position: absolute;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 200%;
+}
+
+.flip-digit-top {
+  top: 0;
+  border: 1px solid #4b4e53;
+  border-bottom: 0;
+  border-radius: 12px 12px 0 0;
+  background: linear-gradient(#3b3e43, #202328);
+  transform-origin: bottom;
+}
+
+.flip-digit-bottom {
+  bottom: 0;
+  border: 1px solid #2c2f34;
+  border-top: 0;
+  border-radius: 0 0 12px 12px;
+  background: linear-gradient(#1a1d22, #25282e);
+  transform-origin: top;
+}
+
+.flip-digit-bottom span {
+  top: -100%;
+}
+
+.flip-digit-outgoing {
+  z-index: 2;
+  animation: flip-top-out 0.6s ease-in forwards;
+}
+
+.flip-digit-hold {
+  z-index: 1;
+  animation: flip-bottom-hold 0.6s step-end forwards;
+}
+
+.flip-digit-incoming {
+  z-index: 3;
+  animation: flip-bottom-in 0.6s ease-out forwards;
+}
+
+.flip-digit-seam {
+  position: absolute;
+  top: calc(50% - 1px);
+  width: 100%;
+  height: 2px;
+  z-index: 4;
+  background: #090b0e;
+}
+
+@keyframes flip-top-out {
+  0% { transform: rotateX(0deg); }
+  50%, 100% { transform: rotateX(-90deg); }
+}
+
+@keyframes flip-bottom-in {
+  0%, 50% { transform: rotateX(90deg); }
+  100% { transform: rotateX(0deg); }
+}
+
+@keyframes flip-bottom-hold {
+  0% { visibility: visible; }
+  50%, 100% { visibility: hidden; }
+}
+
+.flip-colon {
+  height: calc(var(--flip-card-height) * 0.45);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.flip-colon span {
+  width: clamp(12px, 2.5vw, 22px);
+  height: clamp(12px, 2.5vw, 22px);
+  border-radius: 50%;
+  background: var(--flip-accent);
+  box-shadow: 0 0 12px rgba(255, 128, 47, 0.4);
+}
+
+.flip-ampm {
+  color: var(--flip-accent);
+  font-size: clamp(14px, 2vw, 20px);
+  font-weight: 600;
+}
+
+.flip-time-side {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-bottom: calc(var(--flip-card-height) * 0.04);
+}
+
+.flip-seconds {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.flip-seconds .flip-digit {
+  width: calc(var(--flip-card-height) * 0.65 * 0.36);
+  height: calc(var(--flip-card-height) * 0.36);
+  font-size: calc(var(--flip-card-height) * 0.82 * 0.36);
+}
+
+.flip-seconds .flip-digit-pair {
+  gap: 4px;
+}
+
+.flip-seconds-label {
+  color: #b8bbc3;
+  font-size: clamp(9px, 1.3vw, 12px);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.flip-calendar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 100%;
+}
+
+.flip-date {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  color: var(--flip-accent);
+  font-size: clamp(16px, 3vw, 26px);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.flip-weekday {
+  color: #b8bbc3;
+}
+
+.flip-day-progress {
+  display: block;
+  width: min(42vw, 300px);
+  height: 6px;
+  appearance: none;
+  border: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #292c32;
+}
+
+.flip-day-progress::-webkit-progress-bar {
+  background: #292c32;
+}
+
+.flip-day-progress::-webkit-progress-value {
+  background: var(--flip-accent);
+  border-radius: 6px;
+}
+
+.flip-day-progress::-moz-progress-bar {
+  background: var(--flip-accent);
+  border-radius: 6px;
+}
+
+.flip-temperature-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+  padding-top: 14px;
+  border-top: 1px solid #292c32;
+}
+
+.flip-temperature {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  min-width: 0;
+}
+
+.flip-temperature-icon {
+  align-self: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  color: #b8bbc3;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.flip-temperature-value {
+  color: var(--flip-accent);
+  font-size: clamp(18px, 2.75vw, 24px);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.flip-weather-condition {
+  max-width: 160px;
+  overflow: hidden;
+  color: #b8bbc3;
+  font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app[data-face="flip-clock"] .face-navigation-button {
+  border-color: #5a3a25;
+  background: #101114;
+  color: var(--flip-accent, #ff802f);
+}
+
+@media (max-width: 600px) {
+  .flip-clock-face {
+    padding: 60px 16px 16px;
+  }
+
+  .flip-date {
+    gap: 12px;
+    letter-spacing: 0.12em;
+  }
+
+  .flip-weather-condition {
+    flex-basis: 100%;
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flip-digit-hold,
+  .flip-digit-outgoing,
+  .flip-digit-incoming {
+    display: none;
+    animation: none;
+  }
+}

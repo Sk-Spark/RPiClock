@@ -22,6 +22,8 @@ install -d -m 755 -o spark -g spark \
     /home/spark/.config /home/spark/.config/systemd /home/spark/.config/systemd/user
 install -m 644 -o spark -g spark "$source_dir/rpiclock-kiosk.service" \
     /home/spark/.config/systemd/user/rpiclock-kiosk.service
+install -m 644 -o spark -g spark "$source_dir/rpiclock-controller.service" \
+    /home/spark/.config/systemd/user/rpiclock-controller.service
 
 install -m 755 "$source_dir/rpiclock-session.sh" /usr/local/bin/rpiclock-session
 install -m 644 "$source_dir/rpiclock.desktop" /usr/share/xsessions/rpiclock.desktop
@@ -39,5 +41,11 @@ runtime="/run/user/$(id -u spark)"
 runuser -u spark -- env XDG_RUNTIME_DIR="$runtime" \
     DBUS_SESSION_BUS_ADDRESS="unix:path=$runtime/bus" \
     systemctl --user daemon-reload
+runuser -u spark -- env XDG_RUNTIME_DIR="$runtime" \
+    DBUS_SESSION_BUS_ADDRESS="unix:path=$runtime/bus" \
+    systemctl --user enable --now rpiclock-controller.service
+runuser -u spark -- env XDG_RUNTIME_DIR="$runtime" \
+    DBUS_SESSION_BUS_ADDRESS="unix:path=$runtime/bus" \
+    systemctl --user try-restart rpiclock-kiosk.service
 
 printf '\nClock services installed and display session started. No reboot requested.\n'

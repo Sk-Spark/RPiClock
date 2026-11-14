@@ -1,0 +1,84 @@
+.zen-paper-face {
+  --zen-scene-width: max(100vw, 150vh);
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #ead9b9;
+  color: #423d30;
+  font-family: Georgia, 'Liberation Serif', 'Times New Roman', serif;
+  font-variant-numeric: tabular-nums;
+}
+
+.zen-paper-scene {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: var(--zen-scene-width);
+  aspect-ratio: 3 / 2;
+}
+
+.zen-paper-background {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.zen-paper-live {
+  position: absolute;
+  left: 38.2%;
+  top: 36%;
+  width: 45%;
+  transform: translateX(-50%);
+  text-align: center;
+}
+
+.zen-paper-time {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+  font-size: calc(var(--zen-scene-width) * 0.105);
+  line-height: 1;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+.zen-paper-period {
+  font-size: calc(var(--zen-scene-width) * 0.025);
+  font-weight: 600;
+}
+
+.zen-paper-date {
+  margin-top: 0;
+  font-size: calc(var(--zen-scene-width) * 0.026);
+  line-height: 1.4;
+  letter-spacing: 0.05em;
+}
+
+.zen-paper-error {
+  position: absolute;
+  top: 70px;
+  left: 16px;
+  right: 16px;
+  padding: 12px;
+  background: #f5e6ce;
+  color: #7a2b18;
+  text-align: center;
+}
+
+.app[data-face="zen-paper"] .face-navigation-button {
+  background: #f0e2c9;
+  border-color: #998a70;
+  color: #423d30;
+}
+
+@media (max-aspect-ratio: 1 / 1) {
+  .zen-paper-live {
+    left: 50%;
+    top: 25%;
+  }
+}

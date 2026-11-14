@@ -1,5 +1,7 @@
 [Unit]
 Description=RPiClock fullscreen Chromium display
+Wants=rpiclock-controller.service
+After=rpiclock-controller.service
 StartLimitIntervalSec=0
 
 [Service]

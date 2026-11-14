@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test:cpu": "node --test scripts/cpu-temp-server.test.js",
-    "test:faces": "node --test scripts/retro-clock.test.js"
+    "test:faces": "node --test scripts/retro-clock.test.js",
+    "test:controller": "node --test scripts/controller-server.test.js"
   },
   "dependencies": {
     "qrcode.react": "^4.2.0",

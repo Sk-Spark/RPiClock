@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { PointerEvent } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import DigitalClock, { NeonClock, OrbitDigitalClock, RetroClock, TealAnalogClock } from './components/DigitalClock'
+import DigitalClock, { AmberMatrixClock, CosmicOrbitsClock, FlipClock, NeonClock, NixieClock, OrbitDigitalClock, PixelLandscapeClock, RetroClock, TealAnalogClock, TerminalGreenClock, ZenPaperClock } from './components/DigitalClock'
 import AnalogClock from './components/AnalogClock'
 import ClockSettings from './components/ClockSettings'
 import type { ClockFaceProps, TimeFormat } from './utils/timeFormat'
 import { getLocalDayKey, getNextMidnight } from './utils/calendar'
+import faceCatalog from './clockFaces.json'
+import useDisplayController from './useDisplayController'
 import './App.css'
 
 // Define page configuration
@@ -38,18 +40,26 @@ function readClockSettings(): ClockSettingsState {
   }
 }
 
-const pages: PageConfig[] = [
-  // { id: 'slideshow', name: 'Image Slideshow', component: ImageSlideshow },
-  { id: 'digital', name: 'Digital Clock', component: DigitalClock },
-  { id: 'analog', name: 'Analog Clock', component: AnalogClock },
-  { id: 'retro-lcd', name: 'Retro LCD', component: RetroClock },
-  { id: 'neon-red', name: 'Neon Red', component: NeonClock },
-  { id: 'orbit-digital', name: 'Orbit Digital', component: OrbitDigitalClock },
-  { id: 'teal-analog', name: 'Teal Analog', component: TealAnalogClock },
-  // Add more pages here easily:
-  // { id: 'modern', name: 'Modern Clock', component: ModernClock },
-  // { id: 'world', name: 'World Clock', component: WorldClock },
-]
+const faceComponents: Record<string, React.ComponentType<ClockFaceProps>> = {
+  digital: DigitalClock,
+  analog: AnalogClock,
+  'retro-lcd': RetroClock,
+  'neon-red': NeonClock,
+  'orbit-digital': OrbitDigitalClock,
+  'teal-analog': TealAnalogClock,
+  'flip-clock': FlipClock,
+  'nixie-clock': NixieClock,
+  'zen-paper': ZenPaperClock,
+  'amber-matrix': AmberMatrixClock,
+  'cosmic-orbits': CosmicOrbitsClock,
+  'terminal-green': TerminalGreenClock,
+  'pixel-landscape': PixelLandscapeClock
+}
+const pages: PageConfig[] = faceCatalog.map(face => {
+  const component = faceComponents[face.id]
+  if (!component) throw new Error(`Clock face has no component: ${face.id}`)
+  return { ...face, component }
+})
 
 function readSavedFace() {
   if (typeof window === 'undefined') return { id: 'digital', storageError: null }
@@ -147,6 +157,15 @@ function App() {
     }, { replace })
   }, [setSearchParams])
 
+  const controllerError = useDisplayController(searchParams.get('display') === '1', currentPage.id, id => {
+    const index = pages.findIndex(page => page.id === id)
+    if (index < 0) {
+      console.error('Controller selected an unknown clock face:', id)
+      return
+    }
+    selectPage(index, true)
+  })
+
   useEffect(() => {
     let timeout: number | undefined
     const checkMidnight = () => {
@@ -219,7 +238,7 @@ function App() {
           <ClockSettings
             timeFormat={clockSettings.timeFormat}
             onTimeFormatChange={changeTimeFormat}
-            storageError={[clockSettings.storageError, faceStorageError].filter(Boolean).join(' ') || null}
+            storageError={[clockSettings.storageError, faceStorageError, controllerError].filter(Boolean).join(' ') || null}
             onOpenChange={handleSettingsOpenChange}
           />
         </div>

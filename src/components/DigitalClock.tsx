@@ -3,6 +3,13 @@ import RetroClockFace from './RetroClockFace'
 import NeonClockFace from './NeonClockFace'
 import OrbitDigitalFace from './OrbitDigitalFace'
 import TealAnalogFace from './TealAnalogFace'
+import FlipClockFace from './FlipClockFace'
+import NixieClockFace from './NixieClockFace'
+import ZenPaperFace from './ZenPaperFace'
+import AmberMatrixFace from './AmberMatrixFace'
+import CosmicOrbitsFace from './CosmicOrbitsFace'
+import TerminalGreenFace from './TerminalGreenFace'
+import PixelLandscapeFace from './PixelLandscapeFace'
 import { formatClockHours } from '../utils/timeFormat'
 import type { ClockFaceProps } from '../utils/timeFormat'
 import './DigitalClock.css'
@@ -33,7 +40,7 @@ export interface SystemData {
   }
 }
 
-const DigitalClock: React.FC<ClockFaceProps & { variant?: 'modern' | 'retro' | 'neon' | 'orbit' | 'teal' }> = ({
+const DigitalClock: React.FC<ClockFaceProps & { variant?: 'modern' | 'retro' | 'neon' | 'orbit' | 'teal' | 'flip' | 'nixie' | 'zen' | 'matrix' | 'cosmic' | 'terminal' | 'landscape' }> = ({
   variant = 'modern', timeFormat = '24'
 }) => {
   const [time, setTime] = useState<TimeData>({
@@ -97,6 +104,7 @@ const DigitalClock: React.FC<ClockFaceProps & { variant?: 'modern' | 'retro' | '
       try {
         // Fetch CPU temperature
         const cpuTemp = await fetchCPUTemperature()
+        setSystemData(previous => ({ ...previous, cpuTemp }))
         
         // Fetch weather and location data
         const weatherAndLocation = await fetchWeatherData()
@@ -112,7 +120,7 @@ const DigitalClock: React.FC<ClockFaceProps & { variant?: 'modern' | 'retro' | '
     }
 
     updateTime()
-    const showSystemInfo = variant === 'modern' || variant === 'retro'
+    const showSystemInfo = variant === 'modern' || variant === 'retro' || variant === 'flip' || variant === 'matrix'
     if (showSystemInfo) updateSystemData()
     
     const timeInterval = setInterval(updateTime, 1000)
@@ -328,6 +336,27 @@ const DigitalClock: React.FC<ClockFaceProps & { variant?: 'modern' | 'retro' | '
   if (variant === 'teal') {
     return <TealAnalogFace time={time} timeFormat={timeFormat} />
   }
+  if (variant === 'flip') {
+    return <FlipClockFace time={displayTime} systemData={systemData} />
+  }
+  if (variant === 'nixie') {
+    return <NixieClockFace time={displayTime} />
+  }
+  if (variant === 'zen') {
+    return <ZenPaperFace time={displayTime} />
+  }
+  if (variant === 'matrix') {
+    return <AmberMatrixFace time={displayTime} systemData={systemData} />
+  }
+  if (variant === 'cosmic') {
+    return <CosmicOrbitsFace time={displayTime} />
+  }
+  if (variant === 'terminal') {
+    return <TerminalGreenFace time={displayTime} />
+  }
+  if (variant === 'landscape') {
+    return <PixelLandscapeFace time={displayTime} />
+  }
 
   return (
     <div className="digital-clock-page">
@@ -385,6 +414,34 @@ export function OrbitDigitalClock(props: ClockFaceProps) {
 
 export function TealAnalogClock(props: ClockFaceProps) {
   return <DigitalClock {...props} variant="teal" />
+}
+
+export function FlipClock(props: ClockFaceProps) {
+  return <DigitalClock {...props} variant="flip" />
+}
+
+export function NixieClock(props: ClockFaceProps) {
+  return <DigitalClock {...props} variant="nixie" />
+}
+
+export function ZenPaperClock(props: ClockFaceProps) {
+  return <DigitalClock {...props} variant="zen" />
+}
+
+export function AmberMatrixClock(props: ClockFaceProps) {
+  return <DigitalClock {...props} variant="matrix" />
+}
+
+export function CosmicOrbitsClock(props: ClockFaceProps) {
+  return <DigitalClock {...props} variant="cosmic" />
+}
+
+export function TerminalGreenClock(props: ClockFaceProps) {
+  return <DigitalClock {...props} variant="terminal" />
+}
+
+export function PixelLandscapeClock(props: ClockFaceProps) {
+  return <DigitalClock {...props} variant="landscape" />
 }
 
 export default DigitalClock

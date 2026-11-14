@@ -78,6 +78,7 @@ export default function ClockSettings({ timeFormat, onTimeFormatChange, storageE
           </label>
         </fieldset>
         <p className="clock-settings-description">Applies immediately to every clock face and is saved in this browser.</p>
+        <p className="clock-settings-description"><a href="/controller" target="_blank" rel="noopener noreferrer">Open clock controller</a></p>
         {storageError && <p className="clock-settings-error" role="alert">{storageError}</p>}
       </dialog>
     </>

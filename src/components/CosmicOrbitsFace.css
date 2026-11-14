@@ -1,0 +1,40 @@
+.cosmic-orbits-face {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  padding: 32px;
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) minmax(0, 2.5fr) minmax(80px, 1fr);
+  align-items: center;
+  gap: 20px;
+  overflow: hidden;
+  background: radial-gradient(ellipse at center, #071122, #02060d 75%);
+  color: #e6eefb;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.cosmic-stars { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.cosmic-stars circle { filter: drop-shadow(0 0 2px #2997ff); }
+.cosmic-legend, .cosmic-calendar { position: relative; display: flex; flex-direction: column; gap: 12px; color: #b4c1d8; font-size: 14px; }
+.cosmic-legend span { display: flex; align-items: center; gap: 10px; text-transform: uppercase; font-size: 12px; letter-spacing: 0.08em; }
+.cosmic-legend i { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.cosmic-calendar { justify-self: end; }
+.cosmic-clock { position: relative; width: min(100%, 330px); aspect-ratio: 1; justify-self: center; }
+.cosmic-rings { display: block; width: 100%; height: 100%; }
+.cosmic-ring-track { fill: none; stroke: currentColor; stroke-width: 1; opacity: 0.2; }
+.cosmic-ring-progress { fill: none; stroke: currentColor; stroke-width: 1.6; filter: drop-shadow(0 0 3px currentColor); }
+.cosmic-ring-dot { fill: currentColor; filter: drop-shadow(0 0 4px currentColor); }
+.cosmic-clock-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; padding-top: 12px; }
+.cosmic-time { font-size: clamp(30px, 6.75vw, 54px); font-weight: 500; letter-spacing: -0.04em; line-height: 1.1; }
+.cosmic-period { font-size: 14px; font-weight: 500; color: #d1dbea; }
+.cosmic-date { font-size: clamp(11px, 1.9vw, 16px); letter-spacing: 0.08em; text-transform: uppercase; color: #d1dbea; }
+.app[data-face="cosmic-orbits"] .face-navigation-button { color: #67d8ff; background: #061020; border-color: #264763; }
+@media (max-width: 600px) and (max-height: 480px) {
+  .cosmic-orbits-face { padding: 20px; gap: 8px; grid-template-columns: 75px minmax(0, 1fr) 65px; }
+  .cosmic-legend span, .cosmic-calendar { font-size: 10px; }
+}
+@media (max-width: 700px) and (min-height: 481px) {
+  .cosmic-orbits-face { grid-template-columns: minmax(0, 1fr); align-content: center; gap: 28px; }
+  .cosmic-legend, .cosmic-calendar { flex-direction: row; justify-content: center; justify-self: center; }
+  .cosmic-clock { width: min(100%, 320px); }
+}

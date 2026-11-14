@@ -1,0 +1,13 @@
+.pixel-landscape-face { position: relative; width: 100vw; height: 100vh; overflow: hidden; background: #60bdf9; }
+.pixel-landscape-scene { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: max(100vw, 150vh); aspect-ratio: 3 / 2; }
+.pixel-landscape-background { position: absolute; inset: 0; display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+.pixel-landscape-live { position: absolute; left: 49%; top: 29%; transform: translateX(-50%); width: 44%; display: flex; flex-direction: column; align-items: center; gap: 18px; color: #fffdf8; }
+.pixel-landscape-time { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; }
+.pixel-landscape-time svg { display: block; width: 100%; height: auto; min-width: 0; }
+.landscape-pixels { filter: drop-shadow(3px 3px 0 #103663); }
+.landscape-pixels rect { shape-rendering: crispEdges; }
+.pixel-landscape-period { font: 600 18px 'DejaVu Sans Mono', monospace; text-shadow: 2px 2px #103663; }
+.pixel-landscape-date { width: 90%; height: auto; overflow: visible; }
+.pixel-landscape-error { position: absolute; top: 70px; left: 20px; right: 20px; background: #fff; color: #173963; padding: 12px; text-align: center; }
+.app[data-face="pixel-landscape"] .face-navigation-button { color: #fff; background: #12396b; border-color: #c9e9ff; }
+@media (max-aspect-ratio: 1 / 1) { .pixel-landscape-live { width: 42%; top: 29%; left: 50%; } }

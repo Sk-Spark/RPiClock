@@ -1,0 +1,15 @@
+[
+  { "id": "digital", "name": "Digital Clock", "accent": "#f78d60" },
+  { "id": "analog", "name": "Analog Clock", "accent": "#c2ccdc" },
+  { "id": "retro-lcd", "name": "Retro LCD", "accent": "#91e6aa" },
+  { "id": "neon-red", "name": "Neon Red", "accent": "#ff1923" },
+  { "id": "orbit-digital", "name": "Orbit Digital", "accent": "#a443fb" },
+  { "id": "teal-analog", "name": "Teal Analog", "accent": "#7ce3cc" },
+  { "id": "flip-clock", "name": "Flip Clock", "accent": "#ff802f" },
+  { "id": "nixie-clock", "name": "Nixie Clock", "accent": "#ffbd70" },
+  { "id": "zen-paper", "name": "Zen Paper", "accent": "#dcc397" },
+  { "id": "amber-matrix", "name": "Amber Matrix", "accent": "#ffae00" },
+  { "id": "cosmic-orbits", "name": "Cosmic Orbits", "accent": "#04d5ff" },
+  { "id": "terminal-green", "name": "Terminal Green", "accent": "#21f36f" },
+  { "id": "pixel-landscape", "name": "Pixel Landscape", "accent": "#60bdf9" }
+]
